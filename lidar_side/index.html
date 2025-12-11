@@ -1,0 +1,2307 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>LiDAR 分支模块 - BEVfusion 模块化提取文档</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../css/overrides.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "LiDAR \u5206\u652f\u6a21\u5757";
+        var mkdocs_page_input_path = "lidar_side.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> BEVfusion 模块化提取文档
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">首页</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../BEVFusionFramework/">BEVFusion 框架总览</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../camera_side/">Camera 分支模块</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">LiDAR 分支模块</a>
+    <ul class="current">
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../bev_space_integration/">BEV 空间融合模块</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">BEVfusion 模块化提取文档</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">LiDAR 分支模块</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="lidar-side">Lidar Side（点云侧模块）<a class="headerlink" href="#lidar-side" title="Permanent link">&para;</a></h1>
+<p>Lidar Side 模块的作用是：<br />
+将原始 LiDAR 点云进行体素化、特征编码，并通过网络提取 3D 语义表示；<br />
+随后将 3D 特征压缩至 BEV 空间，为后续 BEV 融合提供点云 BEV 表达。</p>
+<p>本模块包含四类核心功能：</p>
+<ol>
+<li>
+<p><strong>点云体素化（Voxelization）</strong><br />
+   将稀疏点云转换为规则体素结构，便于后续网络处理。</p>
+</li>
+<li>
+<p><strong>体素特征编码（Voxel Feature Encoding）</strong><br />
+   对每个体素内部的原始点特征进行编码，得到固定维度表示。</p>
+</li>
+<li>
+<p><strong>稀疏卷积 3D Backbone（Sparse 3D CNN）</strong><br />
+   使用稀疏卷积提取 3D 语义特征。</p>
+</li>
+<li>
+<p><strong>点云 BEV 压缩算子</strong><br />
+   将 3D 特征沿 Z 维压缩成 BEV 特征平面。</p>
+</li>
+</ol>
+<hr />
+<h1 id="api">API 文档<a class="headerlink" href="#api" title="Permanent link">&para;</a></h1>
+<p>以下列出 Lidar Side 中全部算子与网络模块，并给出对应文件路径。</p>
+<hr />
+<h2 id="lidarvoxelization"><code>'LidarVoxelization'</code><a class="headerlink" href="#lidarvoxelization" title="Permanent link">&para;</a></h2>
+<p>将原始点云转换为稀疏体素结构。</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="lidar_side.network.LidarVoxelization"></a>
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="lidar_side.network.LidarVoxelization.LidarVoxelization" class="doc doc-heading">
+            <code>LidarVoxelization</code>
+
+
+<a href="#lidar_side.network.LidarVoxelization.LidarVoxelization" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="torch.nn.Module">Module</span></code></p>
+
+
+        <p>LidarVoxelization 模块（点云体素化算子）。</p>
+<p>该模块将连续的 3D 点云坐标按照给定的 voxel_size 与 point_cloud_range
+量化到规则 3D 体素网格中，并输出体素中的点集合、体素坐标以及每个体素的点数。
+本实现为简化版 CPU 体素化逻辑，便于阅读与算子级重构，而非高性能实现。</p>
+<hr />
+<h5 id="lidar_side.network.LidarVoxelization.LidarVoxelization--_1">结构说明（按顺序）<a class="headerlink" href="#lidar_side.network.LidarVoxelization.LidarVoxelization--_1" title="Permanent link">&para;</a></h5>
+<ol>
+<li>根据 point_cloud_range 与 voxel_size 计算 3D 网格大小 (nx, ny, nz)</li>
+<li>遍历 batch 中每个点，计算其所在体素索引 (ix, iy, iz)</li>
+<li>为每个新体素分配一个 voxel 编号，最多保留 max_voxels 个体素</li>
+<li>在体素内部累积点，最多保留 max_points_per_voxel 个点</li>
+<li>最终输出：</li>
+<li>voxels:     (M, T, C)</li>
+<li>coords:     (M, 4)  [batch_idx, z, y, x]</li>
+<li>num_points: (M,)</li>
+</ol>
+<hr />
+<h5 id="lidar_side.network.LidarVoxelization.LidarVoxelization--_2">输入<a class="headerlink" href="#lidar_side.network.LidarVoxelization.LidarVoxelization--_2" title="Permanent link">&para;</a></h5>
+<p>Args:
+    points: (B, N, C)
+        批量点云数据：
+          - B: batch size
+          - N: 每帧点的最大数量
+          - C: 点特征维度（至少包含 x,y,z，通常为 4: [x,y,z,intensity]）。
+    voxel_size (tuple[float, float, float]):
+        体素大小 (vx, vy, vz)，单位与点云坐标一致。
+    point_cloud_range (tuple[float, float, float, float, float, float]):
+        点云范围 [x_min, y_min, z_min, x_max, y_max, z_max]。
+    max_points_per_voxel (int):
+        每个体素中允许保存的最大点数 T。
+    max_voxels (int):
+        每帧最多保留的体素数量 M_max。</p>
+<hr />
+<h5 id="lidar_side.network.LidarVoxelization.LidarVoxelization--_3">输出<a class="headerlink" href="#lidar_side.network.LidarVoxelization.LidarVoxelization--_3" title="Permanent link">&para;</a></h5>
+<p>Returns:
+    voxels: (M, T, C)
+        体素内点特征张量：
+          - M: 实际生成的体素数量（M ≤ B * max_voxels）
+          - T: 每个体素的最大点数，多余的点会被丢弃，未填满位置为 0。
+    coords: (M, 4)
+        每个体素在 3D 网格中的整数坐标 [batch_idx, z, y, x]。
+    num_points_per_voxel: (M,)
+        每个体素中真实点数，用于区分有效点与 padding。</p>
+<hr />
+<h5 id="lidar_side.network.LidarVoxelization.LidarVoxelization--_4">模块用途<a class="headerlink" href="#lidar_side.network.LidarVoxelization.LidarVoxelization--_4" title="Permanent link">&para;</a></h5>
+<ul>
+<li>将稠密点云转换为规则体素表示，作为后续 VFE 与 Sparse 3D Backbone 的输入</li>
+<li>作为链路 “LiDAR 原始点云 → LiDAR BEV 特征” 中的第一个离散化算子</li>
+<li>在算子框架中统一封装体素化逻辑，便于替换为更高性能的 C++/CUDA 实现</li>
+</ul>
+
+              <details class="quote">
+                <summary>Source code in <code>lidar_side\network\LidarVoxelization.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">  5</span>
+<span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">LidarVoxelization</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    LidarVoxelization 模块（点云体素化算子）。</span>
+
+<span class="sd">    该模块将连续的 3D 点云坐标按照给定的 voxel_size 与 point_cloud_range</span>
+<span class="sd">    量化到规则 3D 体素网格中，并输出体素中的点集合、体素坐标以及每个体素的点数。</span>
+<span class="sd">    本实现为简化版 CPU 体素化逻辑，便于阅读与算子级重构，而非高性能实现。</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 结构说明（按顺序）</span>
+<span class="sd">    1. 根据 point_cloud_range 与 voxel_size 计算 3D 网格大小 (nx, ny, nz)</span>
+<span class="sd">    2. 遍历 batch 中每个点，计算其所在体素索引 (ix, iy, iz)</span>
+<span class="sd">    3. 为每个新体素分配一个 voxel 编号，最多保留 max_voxels 个体素</span>
+<span class="sd">    4. 在体素内部累积点，最多保留 max_points_per_voxel 个点</span>
+<span class="sd">    5. 最终输出：</span>
+<span class="sd">       - voxels:     (M, T, C)</span>
+<span class="sd">       - coords:     (M, 4)  [batch_idx, z, y, x]</span>
+<span class="sd">       - num_points: (M,)</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 输入</span>
+<span class="sd">    Args:</span>
+<span class="sd">        points: (B, N, C)</span>
+<span class="sd">            批量点云数据：</span>
+<span class="sd">              - B: batch size</span>
+<span class="sd">              - N: 每帧点的最大数量</span>
+<span class="sd">              - C: 点特征维度（至少包含 x,y,z，通常为 4: [x,y,z,intensity]）。</span>
+<span class="sd">        voxel_size (tuple[float, float, float]):</span>
+<span class="sd">            体素大小 (vx, vy, vz)，单位与点云坐标一致。</span>
+<span class="sd">        point_cloud_range (tuple[float, float, float, float, float, float]):</span>
+<span class="sd">            点云范围 [x_min, y_min, z_min, x_max, y_max, z_max]。</span>
+<span class="sd">        max_points_per_voxel (int):</span>
+<span class="sd">            每个体素中允许保存的最大点数 T。</span>
+<span class="sd">        max_voxels (int):</span>
+<span class="sd">            每帧最多保留的体素数量 M_max。</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 输出</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        voxels: (M, T, C)</span>
+<span class="sd">            体素内点特征张量：</span>
+<span class="sd">              - M: 实际生成的体素数量（M ≤ B * max_voxels）</span>
+<span class="sd">              - T: 每个体素的最大点数，多余的点会被丢弃，未填满位置为 0。</span>
+<span class="sd">        coords: (M, 4)</span>
+<span class="sd">            每个体素在 3D 网格中的整数坐标 [batch_idx, z, y, x]。</span>
+<span class="sd">        num_points_per_voxel: (M,)</span>
+<span class="sd">            每个体素中真实点数，用于区分有效点与 padding。</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 模块用途</span>
+<span class="sd">    - 将稠密点云转换为规则体素表示，作为后续 VFE 与 Sparse 3D Backbone 的输入</span>
+<span class="sd">    - 作为链路 “LiDAR 原始点云 → LiDAR BEV 特征” 中的第一个离散化算子</span>
+<span class="sd">    - 在算子框架中统一封装体素化逻辑，便于替换为更高性能的 C++/CUDA 实现</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">voxel_size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
+        <span class="n">point_cloud_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
+        <span class="n">max_points_per_voxel</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
+        <span class="n">max_voxels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20000</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>  <span class="c1"># 调用父类构造</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">voxel_size</span> <span class="o">=</span> <span class="n">voxel_size</span>                          <span class="c1"># 记录体素大小</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">point_cloud_range</span> <span class="o">=</span> <span class="n">point_cloud_range</span>            <span class="c1"># 记录点云范围</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_points_per_voxel</span> <span class="o">=</span> <span class="n">max_points_per_voxel</span>      <span class="c1"># 每个体素最大点数</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_voxels</span> <span class="o">=</span> <span class="n">max_voxels</span>                          <span class="c1"># 每帧最大体素数</span>
+
+        <span class="c1"># 预计算网格大小 (nx, ny, nz)</span>
+        <span class="n">x_min</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">z_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_max</span><span class="p">,</span> <span class="n">z_max</span> <span class="o">=</span> <span class="n">point_cloud_range</span>  <span class="c1"># 解包范围</span>
+        <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span> <span class="o">=</span> <span class="n">voxel_size</span>                                       <span class="c1"># 解包体素尺寸</span>
+
+        <span class="n">nx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">x_max</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">vx</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)</span>                         <span class="c1"># x 方向体素数</span>
+        <span class="n">ny</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">y_max</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">vy</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)</span>                         <span class="c1"># y 方向体素数</span>
+        <span class="n">nz</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">z_max</span> <span class="o">-</span> <span class="n">z_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">vz</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)</span>                         <span class="c1"># z 方向体素数</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span> <span class="o">=</span> <span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">)</span>                                 <span class="c1"># 保存网格尺寸</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            points (torch.Tensor):</span>
+<span class="sd">                批量点云张量，形状为 (B, N, C)。      # 输入点云</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            voxels (torch.Tensor):</span>
+<span class="sd">                体素内点特征，形状 (M, T, C)。        # 输出体素</span>
+<span class="sd">            coords (torch.Tensor):</span>
+<span class="sd">                体素坐标，形状 (M, 4)。               # [batch, z, y, x]</span>
+<span class="sd">            num_points_per_voxel (torch.Tensor):</span>
+<span class="sd">                每个体素真实点数，形状 (M,)。         # 点数统计</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">points</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;points 必须是 (B, N, C) 张量&quot;</span>           <span class="c1"># 基本检查</span>
+
+        <span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">C</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span>                                          <span class="c1"># 读取维度</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">device</span>                                          <span class="c1"># 获取设备</span>
+
+        <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_size</span>                                    <span class="c1"># 体素大小</span>
+        <span class="n">x_min</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">z_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_max</span><span class="p">,</span> <span class="n">z_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">point_cloud_range</span>  <span class="c1"># 点云范围</span>
+        <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span>                                     <span class="c1"># 网格大小</span>
+
+        <span class="c1"># 最大体素总数：每帧 max_voxels，共 B 帧</span>
+        <span class="n">max_total_voxels</span> <span class="o">=</span> <span class="n">B</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_voxels</span>                          <span class="c1"># 体素总上限</span>
+
+        <span class="c1"># 预分配输出张量</span>
+        <span class="n">voxels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">max_total_voxels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_points_per_voxel</span><span class="p">,</span> <span class="n">C</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">points</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+        <span class="p">)</span>                                                                <span class="c1"># 体素点特征</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">max_total_voxels</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span>
+        <span class="p">)</span>                                                                <span class="c1"># 体素坐标</span>
+        <span class="n">num_points_per_voxel</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">max_total_voxels</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span>
+        <span class="p">)</span>                                                                <span class="c1"># 每个体素点数</span>
+
+        <span class="n">voxel_count</span> <span class="o">=</span> <span class="mi">0</span>                                                  <span class="c1"># 当前体素计数</span>
+        <span class="n">voxel_map</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>                                             <span class="c1"># (b,z,y,x) → voxel_id 映射</span>
+
+        <span class="c1"># 遍历 batch 中每一帧点云</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>                                               <span class="c1"># 遍历每个 batch</span>
+            <span class="n">pts</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>                                              <span class="c1"># (N,C)</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>                                           <span class="c1"># 遍历每个点</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">pts</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">pts</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>  <span class="c1"># 读取坐标</span>
+
+                <span class="c1"># 过滤超出范围的点</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">x_min</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">x_max</span> <span class="ow">and</span>
+                        <span class="n">y_min</span> <span class="o">&lt;=</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">y_max</span> <span class="ow">and</span>
+                        <span class="n">z_min</span> <span class="o">&lt;=</span> <span class="n">z</span> <span class="o">&lt;</span> <span class="n">z_max</span><span class="p">):</span>
+                    <span class="k">continue</span>                                             <span class="c1"># 跳过无效点</span>
+
+                <span class="c1"># 计算体素索引</span>
+                <span class="n">ix</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">vx</span><span class="p">)</span>
+                <span class="n">iy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">vy</span><span class="p">)</span>
+                <span class="n">iz</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">z</span> <span class="o">-</span> <span class="n">z_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">vz</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">ix</span> <span class="o">&lt;</span> <span class="n">nx</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">iy</span> <span class="o">&lt;</span> <span class="n">ny</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">iz</span> <span class="o">&lt;</span> <span class="n">nz</span><span class="p">):</span>
+                    <span class="k">continue</span>                                             <span class="c1"># 再次安全检查</span>
+
+                <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">iz</span><span class="p">,</span> <span class="n">iy</span><span class="p">,</span> <span class="n">ix</span><span class="p">)</span>                                    <span class="c1"># 体素键值</span>
+
+                <span class="c1"># 为新体素分配索引</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">voxel_map</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">voxel_count</span> <span class="o">&gt;=</span> <span class="n">max_total_voxels</span><span class="p">:</span>                  <span class="c1"># 超出体素总上限</span>
+                        <span class="k">continue</span>
+                    <span class="n">voxel_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">voxel_count</span>                         <span class="c1"># 记录映射</span>
+                    <span class="n">coords</span><span class="p">[</span><span class="n">voxel_count</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
+                        <span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">iz</span><span class="p">,</span> <span class="n">iy</span><span class="p">,</span> <span class="n">ix</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span>
+                    <span class="p">)</span>                                                    <span class="c1"># 写入体素坐标</span>
+                    <span class="n">voxel_count</span> <span class="o">+=</span> <span class="mi">1</span>                                     <span class="c1"># 体素计数加一</span>
+
+                <span class="n">voxel_id</span> <span class="o">=</span> <span class="n">voxel_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>                                <span class="c1"># 获取体素索引</span>
+
+                <span class="c1"># 若该体素已满，则丢弃多余点</span>
+                <span class="n">cur_num</span> <span class="o">=</span> <span class="n">num_points_per_voxel</span><span class="p">[</span><span class="n">voxel_id</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>          <span class="c1"># 当前点数</span>
+                <span class="k">if</span> <span class="n">cur_num</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_points_per_voxel</span><span class="p">:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">voxels</span><span class="p">[</span><span class="n">voxel_id</span><span class="p">,</span> <span class="n">cur_num</span><span class="p">]</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>                       <span class="c1"># 写入点特征</span>
+                <span class="n">num_points_per_voxel</span><span class="p">[</span><span class="n">voxel_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_num</span> <span class="o">+</span> <span class="mi">1</span>             <span class="c1"># 点数加一</span>
+
+        <span class="c1"># 截取到实际使用的体素数量</span>
+        <span class="n">voxels</span> <span class="o">=</span> <span class="n">voxels</span><span class="p">[:</span><span class="n">voxel_count</span><span class="p">]</span>                                    <span class="c1"># 裁剪多余体素</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[:</span><span class="n">voxel_count</span><span class="p">]</span>                                    <span class="c1"># 裁剪坐标</span>
+        <span class="n">num_points_per_voxel</span> <span class="o">=</span> <span class="n">num_points_per_voxel</span><span class="p">[:</span><span class="n">voxel_count</span><span class="p">]</span>        <span class="c1"># 裁剪点数</span>
+
+        <span class="k">return</span> <span class="n">voxels</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">num_points_per_voxel</span>                      <span class="c1"># 返回体素化结果</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lidar_side.network.LidarVoxelization.LidarVoxelization.forward" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">forward</span><span class="p">(</span><span class="n">points</span><span class="p">)</span></code>
+
+<a href="#lidar_side.network.LidarVoxelization.LidarVoxelization.forward" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>points</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>批量点云张量，形状为 (B, N, C)。      # 输入点云</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>voxels</code></b>(                  <code><span title="torch.Tensor">Tensor</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>体素内点特征，形状 (M, T, C)。        # 输出体素</p>
+              </div>
+            </li>
+            <li>
+<b><code>coords</code></b>(                  <code><span title="torch.Tensor">Tensor</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>体素坐标，形状 (M, 4)。               # [batch, z, y, x]</p>
+              </div>
+            </li>
+            <li>
+<b><code>num_points_per_voxel</code></b>(                  <code><span title="torch.Tensor">Tensor</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>每个体素真实点数，形状 (M,)。         # 点数统计</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>lidar_side\network\LidarVoxelization.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        points (torch.Tensor):</span>
+<span class="sd">            批量点云张量，形状为 (B, N, C)。      # 输入点云</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        voxels (torch.Tensor):</span>
+<span class="sd">            体素内点特征，形状 (M, T, C)。        # 输出体素</span>
+<span class="sd">        coords (torch.Tensor):</span>
+<span class="sd">            体素坐标，形状 (M, 4)。               # [batch, z, y, x]</span>
+<span class="sd">        num_points_per_voxel (torch.Tensor):</span>
+<span class="sd">            每个体素真实点数，形状 (M,)。         # 点数统计</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">points</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;points 必须是 (B, N, C) 张量&quot;</span>           <span class="c1"># 基本检查</span>
+
+    <span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">C</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">shape</span>                                          <span class="c1"># 读取维度</span>
+    <span class="n">device</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">device</span>                                          <span class="c1"># 获取设备</span>
+
+    <span class="n">vx</span><span class="p">,</span> <span class="n">vy</span><span class="p">,</span> <span class="n">vz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">voxel_size</span>                                    <span class="c1"># 体素大小</span>
+    <span class="n">x_min</span><span class="p">,</span> <span class="n">y_min</span><span class="p">,</span> <span class="n">z_min</span><span class="p">,</span> <span class="n">x_max</span><span class="p">,</span> <span class="n">y_max</span><span class="p">,</span> <span class="n">z_max</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">point_cloud_range</span>  <span class="c1"># 点云范围</span>
+    <span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span>                                     <span class="c1"># 网格大小</span>
+
+    <span class="c1"># 最大体素总数：每帧 max_voxels，共 B 帧</span>
+    <span class="n">max_total_voxels</span> <span class="o">=</span> <span class="n">B</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_voxels</span>                          <span class="c1"># 体素总上限</span>
+
+    <span class="c1"># 预分配输出张量</span>
+    <span class="n">voxels</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">max_total_voxels</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_points_per_voxel</span><span class="p">,</span> <span class="n">C</span><span class="p">),</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">points</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+    <span class="p">)</span>                                                                <span class="c1"># 体素点特征</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">max_total_voxels</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span>
+    <span class="p">)</span>                                                                <span class="c1"># 体素坐标</span>
+    <span class="n">num_points_per_voxel</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">max_total_voxels</span><span class="p">,),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span>
+    <span class="p">)</span>                                                                <span class="c1"># 每个体素点数</span>
+
+    <span class="n">voxel_count</span> <span class="o">=</span> <span class="mi">0</span>                                                  <span class="c1"># 当前体素计数</span>
+    <span class="n">voxel_map</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>                                             <span class="c1"># (b,z,y,x) → voxel_id 映射</span>
+
+    <span class="c1"># 遍历 batch 中每一帧点云</span>
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>                                               <span class="c1"># 遍历每个 batch</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>                                              <span class="c1"># (N,C)</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>                                           <span class="c1"># 遍历每个点</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">pts</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">(),</span> <span class="n">pts</span><span class="p">[</span><span class="n">n</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>  <span class="c1"># 读取坐标</span>
+
+            <span class="c1"># 过滤超出范围的点</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">x_min</span> <span class="o">&lt;=</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="n">x_max</span> <span class="ow">and</span>
+                    <span class="n">y_min</span> <span class="o">&lt;=</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="n">y_max</span> <span class="ow">and</span>
+                    <span class="n">z_min</span> <span class="o">&lt;=</span> <span class="n">z</span> <span class="o">&lt;</span> <span class="n">z_max</span><span class="p">):</span>
+                <span class="k">continue</span>                                             <span class="c1"># 跳过无效点</span>
+
+            <span class="c1"># 计算体素索引</span>
+            <span class="n">ix</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">x_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">vx</span><span class="p">)</span>
+            <span class="n">iy</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">y</span> <span class="o">-</span> <span class="n">y_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">vy</span><span class="p">)</span>
+            <span class="n">iz</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">z</span> <span class="o">-</span> <span class="n">z_min</span><span class="p">)</span> <span class="o">/</span> <span class="n">vz</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">ix</span> <span class="o">&lt;</span> <span class="n">nx</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">iy</span> <span class="o">&lt;</span> <span class="n">ny</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">iz</span> <span class="o">&lt;</span> <span class="n">nz</span><span class="p">):</span>
+                <span class="k">continue</span>                                             <span class="c1"># 再次安全检查</span>
+
+            <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">iz</span><span class="p">,</span> <span class="n">iy</span><span class="p">,</span> <span class="n">ix</span><span class="p">)</span>                                    <span class="c1"># 体素键值</span>
+
+            <span class="c1"># 为新体素分配索引</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">voxel_map</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">voxel_count</span> <span class="o">&gt;=</span> <span class="n">max_total_voxels</span><span class="p">:</span>                  <span class="c1"># 超出体素总上限</span>
+                    <span class="k">continue</span>
+                <span class="n">voxel_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">voxel_count</span>                         <span class="c1"># 记录映射</span>
+                <span class="n">coords</span><span class="p">[</span><span class="n">voxel_count</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">b</span><span class="p">,</span> <span class="n">iz</span><span class="p">,</span> <span class="n">iy</span><span class="p">,</span> <span class="n">ix</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span>
+                <span class="p">)</span>                                                    <span class="c1"># 写入体素坐标</span>
+                <span class="n">voxel_count</span> <span class="o">+=</span> <span class="mi">1</span>                                     <span class="c1"># 体素计数加一</span>
+
+            <span class="n">voxel_id</span> <span class="o">=</span> <span class="n">voxel_map</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>                                <span class="c1"># 获取体素索引</span>
+
+            <span class="c1"># 若该体素已满，则丢弃多余点</span>
+            <span class="n">cur_num</span> <span class="o">=</span> <span class="n">num_points_per_voxel</span><span class="p">[</span><span class="n">voxel_id</span><span class="p">]</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>          <span class="c1"># 当前点数</span>
+            <span class="k">if</span> <span class="n">cur_num</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_points_per_voxel</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">voxels</span><span class="p">[</span><span class="n">voxel_id</span><span class="p">,</span> <span class="n">cur_num</span><span class="p">]</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>                       <span class="c1"># 写入点特征</span>
+            <span class="n">num_points_per_voxel</span><span class="p">[</span><span class="n">voxel_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">cur_num</span> <span class="o">+</span> <span class="mi">1</span>             <span class="c1"># 点数加一</span>
+
+    <span class="c1"># 截取到实际使用的体素数量</span>
+    <span class="n">voxels</span> <span class="o">=</span> <span class="n">voxels</span><span class="p">[:</span><span class="n">voxel_count</span><span class="p">]</span>                                    <span class="c1"># 裁剪多余体素</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">coords</span><span class="p">[:</span><span class="n">voxel_count</span><span class="p">]</span>                                    <span class="c1"># 裁剪坐标</span>
+    <span class="n">num_points_per_voxel</span> <span class="o">=</span> <span class="n">num_points_per_voxel</span><span class="p">[:</span><span class="n">voxel_count</span><span class="p">]</span>        <span class="c1"># 裁剪点数</span>
+
+    <span class="k">return</span> <span class="n">voxels</span><span class="p">,</span> <span class="n">coords</span><span class="p">,</span> <span class="n">num_points_per_voxel</span>                      <span class="c1"># 返回体素化结果</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h2 id="voxelfeatureencoder"><code>'VoxelFeatureEncoder'</code><a class="headerlink" href="#voxelfeatureencoder" title="Permanent link">&para;</a></h2>
+<p>对体素中的点云进行特征编码。</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="lidar_side.network.VoxelFeatureEncoder"></a>
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder" class="doc doc-heading">
+            <code>VoxelFeatureEncoder</code>
+
+
+<a href="#lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="torch.nn.Module">Module</span></code></p>
+
+
+        <p>VoxelFeatureEncoder 模块（体素特征编码算子，VFE）。</p>
+<p>该模块接收体素化后的点云数据，通过逐点 MLP 编码并在体素内部做
+聚合（如 max pooling），将每个体素内不定数量的点特征压缩为一个
+定长向量，用作后续稀疏 3D 主干网络的输入。</p>
+<hr />
+<h5 id="lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder--_1">结构说明（按顺序）<a class="headerlink" href="#lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder--_1" title="Permanent link">&para;</a></h5>
+<ol>
+<li>对体素内每个点做逐点特征编码：
+   <strong>Linear C_in → C_mid + BatchNorm1d + ReLU</strong></li>
+<li>在体素内部沿点维度做 <strong>max pooling</strong>：
+   将 (M, T, C_mid) 聚合为 (M, C_mid)</li>
+<li>可选再接一层线性变换：
+   <strong>Linear C_mid → C_out + BatchNorm1d + ReLU</strong></li>
+</ol>
+<hr />
+<h5 id="lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder--_2">输入<a class="headerlink" href="#lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder--_2" title="Permanent link">&para;</a></h5>
+<p>Args:
+    voxels: (M, T, C_in)
+        体素内点特征：
+          - M: 体素数量
+          - T: 每个体素的最大点数
+          - C_in: 点特征维度（如 [x,y,z,intensity,...]）。
+    num_points_per_voxel: (M,)
+        每个体素中真实点数，用于区分有效点与 padding。</p>
+<hr />
+<h5 id="lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder--_3">输出<a class="headerlink" href="#lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder--_3" title="Permanent link">&para;</a></h5>
+<p>Returns:
+    voxel_feats: (M, C_out)
+        编码后的体素特征，每个体素对应一个定长向量。</p>
+<hr />
+<h5 id="lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder--_4">模块用途<a class="headerlink" href="#lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder--_4" title="Permanent link">&para;</a></h5>
+<ul>
+<li>将不定点数的体素内点云压缩为固定维度特征</li>
+<li>作为链路 “LiDAR 体素化 → 稀疏 3D 主干网络” 的接口算子</li>
+<li>可以替换为更复杂的多层 VFE 或带残差的体素编码器</li>
+</ul>
+
+              <details class="quote">
+                <summary>Source code in <code>lidar_side\network\VoxelFeatureEncoder.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">VoxelFeatureEncoder</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    VoxelFeatureEncoder 模块（体素特征编码算子，VFE）。</span>
+
+<span class="sd">    该模块接收体素化后的点云数据，通过逐点 MLP 编码并在体素内部做</span>
+<span class="sd">    聚合（如 max pooling），将每个体素内不定数量的点特征压缩为一个</span>
+<span class="sd">    定长向量，用作后续稀疏 3D 主干网络的输入。</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 结构说明（按顺序）</span>
+<span class="sd">    1. 对体素内每个点做逐点特征编码：</span>
+<span class="sd">       **Linear C_in → C_mid + BatchNorm1d + ReLU**</span>
+<span class="sd">    2. 在体素内部沿点维度做 **max pooling**：</span>
+<span class="sd">       将 (M, T, C_mid) 聚合为 (M, C_mid)</span>
+<span class="sd">    3. 可选再接一层线性变换：</span>
+<span class="sd">       **Linear C_mid → C_out + BatchNorm1d + ReLU**</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 输入</span>
+<span class="sd">    Args:</span>
+<span class="sd">        voxels: (M, T, C_in)</span>
+<span class="sd">            体素内点特征：</span>
+<span class="sd">              - M: 体素数量</span>
+<span class="sd">              - T: 每个体素的最大点数</span>
+<span class="sd">              - C_in: 点特征维度（如 [x,y,z,intensity,...]）。</span>
+<span class="sd">        num_points_per_voxel: (M,)</span>
+<span class="sd">            每个体素中真实点数，用于区分有效点与 padding。</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 输出</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        voxel_feats: (M, C_out)</span>
+<span class="sd">            编码后的体素特征，每个体素对应一个定长向量。</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 模块用途</span>
+<span class="sd">    - 将不定点数的体素内点云压缩为固定维度特征</span>
+<span class="sd">    - 作为链路 “LiDAR 体素化 → 稀疏 3D 主干网络” 的接口算子</span>
+<span class="sd">    - 可以替换为更复杂的多层 VFE 或带残差的体素编码器</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">in_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">mid_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">out_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">use_second_linear</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            in_channels (int):</span>
+<span class="sd">                输入点特征维度 C_in。                 # 点特征通道</span>
+<span class="sd">            mid_channels (int):</span>
+<span class="sd">                中间编码通道数 C_mid。                # 中间通道</span>
+<span class="sd">            out_channels (int):</span>
+<span class="sd">                输出体素特征维度 C_out。              # 输出通道</span>
+<span class="sd">            use_second_linear (bool):</span>
+<span class="sd">                是否使用第二层 Linear+CBN+ReLU。     # 控制是否使用第二层 MLP</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>  <span class="c1"># 父类构造</span>
+
+        <span class="c1"># 第一层逐点编码：Linear + BN + ReLU</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">mid_channels</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># 线性映射</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bn1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm1d</span><span class="p">(</span><span class="n">mid_channels</span><span class="p">)</span>                          <span class="c1"># BN</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_second_linear</span> <span class="o">=</span> <span class="n">use_second_linear</span>                       <span class="c1"># 记录配置</span>
+
+        <span class="k">if</span> <span class="n">use_second_linear</span><span class="p">:</span>
+            <span class="c1"># 第二层逐点 / 逐体素编码</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">linear2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">mid_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># 线性映射</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bn2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm1d</span><span class="p">(</span><span class="n">out_channels</span><span class="p">)</span>                           <span class="c1"># BN</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out_channels</span> <span class="o">=</span> <span class="n">out_channels</span>                                  <span class="c1"># 输出维度</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">out_channels</span> <span class="o">=</span> <span class="n">mid_channels</span>                                  <span class="c1"># 输出维度等于中间层</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">voxels</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">num_points_per_voxel</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            voxels (torch.Tensor):</span>
+<span class="sd">                体素内点特征，形状 (M, T, C_in)。         # 输入体素</span>
+<span class="sd">            num_points_per_voxel (torch.Tensor):</span>
+<span class="sd">                每个体素真实点数，形状 (M,)。             # 有效点数</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor:</span>
+<span class="sd">                编码后的体素特征，形状 (M, C_out)。       # 输出体素特征</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">voxels</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;voxels 必须是 (M, T, C_in) 张量&quot;</span>                <span class="c1"># 检查维度</span>
+        <span class="k">assert</span> <span class="n">num_points_per_voxel</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;num_points_per_voxel 必须是一维张量&quot;</span>  <span class="c1"># 检查维度</span>
+
+        <span class="n">M</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">C_in</span> <span class="o">=</span> <span class="n">voxels</span><span class="o">.</span><span class="n">shape</span>                                               <span class="c1"># 读取尺寸</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">voxels</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span> <span class="o">*</span> <span class="n">T</span><span class="p">,</span> <span class="n">C_in</span><span class="p">)</span>                                         <span class="c1"># 合并体素和点维度</span>
+
+        <span class="c1"># 逐点编码：Linear1 + BN1 + ReLU</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                                     <span class="c1"># 线性变换</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                                         <span class="c1"># BN</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>                                             <span class="c1"># 激活</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>                                                 <span class="c1"># 恢复为 (M,T,C_mid)</span>
+
+        <span class="c1"># 体素内部 max pooling（掩码无效点）</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">voxels</span><span class="o">.</span><span class="n">device</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+            <span class="o">&lt;</span> <span class="n">num_points_per_voxel</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>                                                                       <span class="c1"># 有效点掩码 (M,T)</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>                                               <span class="c1"># (M,T,1)</span>
+
+        <span class="n">x_masked</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">masked_fill</span><span class="p">(</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">))</span>                          <span class="c1"># 无效位置置为 -inf</span>
+        <span class="n">voxel_feats</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">x_masked</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>                                    <span class="c1"># 沿点维度取最大值 → (M,C_mid)</span>
+
+        <span class="n">voxel_feats</span><span class="p">[</span><span class="n">voxel_feats</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.0</span>                         <span class="c1"># 处理全无效情况</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_second_linear</span><span class="p">:</span>
+            <span class="c1"># 第二层编码：Linear2 + BN2 + ReLU</span>
+            <span class="n">voxel_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear2</span><span class="p">(</span><span class="n">voxel_feats</span><span class="p">)</span>                             <span class="c1"># 线性变换</span>
+            <span class="n">voxel_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn2</span><span class="p">(</span><span class="n">voxel_feats</span><span class="p">)</span>                                 <span class="c1"># BN</span>
+            <span class="n">voxel_feats</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">voxel_feats</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>                     <span class="c1"># 激活</span>
+
+        <span class="k">return</span> <span class="n">voxel_feats</span>                                                      <span class="c1"># 返回体素特征</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">mid_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="n">use_second_linear</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+<a href="#lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder.__init__" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>in_channels</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>输入点特征维度 C_in。                 # 点特征通道</p>
+              </div>
+            </li>
+            <li>
+              <b><code>mid_channels</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>中间编码通道数 C_mid。                # 中间通道</p>
+              </div>
+            </li>
+            <li>
+              <b><code>out_channels</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>输出体素特征维度 C_out。              # 输出通道</p>
+              </div>
+            </li>
+            <li>
+              <b><code>use_second_linear</code></b>
+                  (<code>bool</code>, default:
+                      <code>True</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>是否使用第二层 Linear+CBN+ReLU。     # 控制是否使用第二层 MLP</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>lidar_side\network\VoxelFeatureEncoder.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">in_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">mid_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">out_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">use_second_linear</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        in_channels (int):</span>
+<span class="sd">            输入点特征维度 C_in。                 # 点特征通道</span>
+<span class="sd">        mid_channels (int):</span>
+<span class="sd">            中间编码通道数 C_mid。                # 中间通道</span>
+<span class="sd">        out_channels (int):</span>
+<span class="sd">            输出体素特征维度 C_out。              # 输出通道</span>
+<span class="sd">        use_second_linear (bool):</span>
+<span class="sd">            是否使用第二层 Linear+CBN+ReLU。     # 控制是否使用第二层 MLP</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>  <span class="c1"># 父类构造</span>
+
+    <span class="c1"># 第一层逐点编码：Linear + BN + ReLU</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">linear1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">mid_channels</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># 线性映射</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">bn1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm1d</span><span class="p">(</span><span class="n">mid_channels</span><span class="p">)</span>                          <span class="c1"># BN</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">use_second_linear</span> <span class="o">=</span> <span class="n">use_second_linear</span>                       <span class="c1"># 记录配置</span>
+
+    <span class="k">if</span> <span class="n">use_second_linear</span><span class="p">:</span>
+        <span class="c1"># 第二层逐点 / 逐体素编码</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linear2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">mid_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># 线性映射</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bn2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm1d</span><span class="p">(</span><span class="n">out_channels</span><span class="p">)</span>                           <span class="c1"># BN</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_channels</span> <span class="o">=</span> <span class="n">out_channels</span>                                  <span class="c1"># 输出维度</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_channels</span> <span class="o">=</span> <span class="n">mid_channels</span>                                  <span class="c1"># 输出维度等于中间层</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder.forward" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">forward</span><span class="p">(</span><span class="n">voxels</span><span class="p">,</span> <span class="n">num_points_per_voxel</span><span class="p">)</span></code>
+
+<a href="#lidar_side.network.VoxelFeatureEncoder.VoxelFeatureEncoder.forward" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>voxels</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>体素内点特征，形状 (M, T, C_in)。         # 输入体素</p>
+              </div>
+            </li>
+            <li>
+              <b><code>num_points_per_voxel</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>每个体素真实点数，形状 (M,)。             # 有效点数</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="torch.Tensor">Tensor</span></code>
+              –
+              <div class="doc-md-description">
+                <p>torch.Tensor:
+编码后的体素特征，形状 (M, C_out)。       # 输出体素特征</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>lidar_side\network\VoxelFeatureEncoder.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">voxels</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">num_points_per_voxel</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        voxels (torch.Tensor):</span>
+<span class="sd">            体素内点特征，形状 (M, T, C_in)。         # 输入体素</span>
+<span class="sd">        num_points_per_voxel (torch.Tensor):</span>
+<span class="sd">            每个体素真实点数，形状 (M,)。             # 有效点数</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor:</span>
+<span class="sd">            编码后的体素特征，形状 (M, C_out)。       # 输出体素特征</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">voxels</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;voxels 必须是 (M, T, C_in) 张量&quot;</span>                <span class="c1"># 检查维度</span>
+    <span class="k">assert</span> <span class="n">num_points_per_voxel</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;num_points_per_voxel 必须是一维张量&quot;</span>  <span class="c1"># 检查维度</span>
+
+    <span class="n">M</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">C_in</span> <span class="o">=</span> <span class="n">voxels</span><span class="o">.</span><span class="n">shape</span>                                               <span class="c1"># 读取尺寸</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">voxels</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span> <span class="o">*</span> <span class="n">T</span><span class="p">,</span> <span class="n">C_in</span><span class="p">)</span>                                         <span class="c1"># 合并体素和点维度</span>
+
+    <span class="c1"># 逐点编码：Linear1 + BN1 + ReLU</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                                     <span class="c1"># 线性变换</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                                         <span class="c1"># BN</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>                                             <span class="c1"># 激活</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>                                                 <span class="c1"># 恢复为 (M,T,C_mid)</span>
+
+    <span class="c1"># 体素内部 max pooling（掩码无效点）</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">torch</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">voxels</span><span class="o">.</span><span class="n">device</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="n">M</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+        <span class="o">&lt;</span> <span class="n">num_points_per_voxel</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>                                                                       <span class="c1"># 有效点掩码 (M,T)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">mask</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>                                               <span class="c1"># (M,T,1)</span>
+
+    <span class="n">x_masked</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">masked_fill</span><span class="p">(</span><span class="o">~</span><span class="n">mask</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">))</span>                          <span class="c1"># 无效位置置为 -inf</span>
+    <span class="n">voxel_feats</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">x_masked</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>                                    <span class="c1"># 沿点维度取最大值 → (M,C_mid)</span>
+
+    <span class="n">voxel_feats</span><span class="p">[</span><span class="n">voxel_feats</span> <span class="o">==</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">)]</span> <span class="o">=</span> <span class="mf">0.0</span>                         <span class="c1"># 处理全无效情况</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_second_linear</span><span class="p">:</span>
+        <span class="c1"># 第二层编码：Linear2 + BN2 + ReLU</span>
+        <span class="n">voxel_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">linear2</span><span class="p">(</span><span class="n">voxel_feats</span><span class="p">)</span>                             <span class="c1"># 线性变换</span>
+        <span class="n">voxel_feats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn2</span><span class="p">(</span><span class="n">voxel_feats</span><span class="p">)</span>                                 <span class="c1"># BN</span>
+        <span class="n">voxel_feats</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">voxel_feats</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>                     <span class="c1"># 激活</span>
+
+    <span class="k">return</span> <span class="n">voxel_feats</span>                                                      <span class="c1"># 返回体素特征</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h2 id="sparse3dbackbone"><code>'Sparse3DBackbone'</code><a class="headerlink" href="#sparse3dbackbone" title="Permanent link">&para;</a></h2>
+<p>基于稀疏卷积的 3D 特征提取网络。</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="lidar_side.network.Sparse3DBackbone"></a>
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="lidar_side.network.Sparse3DBackbone.Sparse3DBackbone" class="doc doc-heading">
+            <code>Sparse3DBackbone</code>
+
+
+<a href="#lidar_side.network.Sparse3DBackbone.Sparse3DBackbone" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="torch.nn.Module">Module</span></code></p>
+
+
+        <p>Sparse3DBackbone 模块（稀疏三维主干网络算子 / SECOND 风格简化版）。</p>
+<p>该模块接收体素特征及其三维坐标，将稀疏体素特征嵌入到规则 3D 体素网格中，
+再通过 3D 卷积对整个体素网格进行特征提取，输出形状为 (B, C_out, Z, Y, X)
+的三维特征体，供后续高度维压缩算子使用。</p>
+<p>注意：本实现为“稠密 3D 卷积版本”的简化骨架，用于算子级重构与实验 Demo，
+并非真正的高性能 SparseConv 实现。</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>in_channels</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>int
+输入体素特征通道数 C_in。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>hidden_channels</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>int
+中间层通道数 C_mid，用于增强表达能力。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>out_channels</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>int
+输出三维特征通道数 C_out。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>grid_size</code></b>
+                  (<code><span title="typing.Tuple">Tuple</span>[int, int, int]</code>)
+              –
+              <div class="doc-md-description">
+                <p>tuple[int, int, int]
+三维体素网格尺寸 (Z, Y, X)，与体素化阶段使用的网格大小一致。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>feat_3d</code></b>              –
+              <div class="doc-md-description">
+                <p>(B, C_out, Z, Y, X)
+编码后的三维体素特征体，用于后续 3D→BEV 压缩算子。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+              <details class="quote">
+                <summary>Source code in <code>lidar_side\network\Sparse3DBackbone.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Sparse3DBackbone</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sparse3DBackbone 模块（稀疏三维主干网络算子 / SECOND 风格简化版）。</span>
+
+<span class="sd">    该模块接收体素特征及其三维坐标，将稀疏体素特征嵌入到规则 3D 体素网格中，</span>
+<span class="sd">    再通过 3D 卷积对整个体素网格进行特征提取，输出形状为 (B, C_out, Z, Y, X)</span>
+<span class="sd">    的三维特征体，供后续高度维压缩算子使用。</span>
+
+<span class="sd">    注意：本实现为“稠密 3D 卷积版本”的简化骨架，用于算子级重构与实验 Demo，</span>
+<span class="sd">    并非真正的高性能 SparseConv 实现。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        in_channels: int</span>
+<span class="sd">            输入体素特征通道数 C_in。</span>
+<span class="sd">        hidden_channels: int</span>
+<span class="sd">            中间层通道数 C_mid，用于增强表达能力。</span>
+<span class="sd">        out_channels: int</span>
+<span class="sd">            输出三维特征通道数 C_out。</span>
+<span class="sd">        grid_size: tuple[int, int, int]</span>
+<span class="sd">            三维体素网格尺寸 (Z, Y, X)，与体素化阶段使用的网格大小一致。</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        feat_3d: (B, C_out, Z, Y, X)</span>
+<span class="sd">            编码后的三维体素特征体，用于后续 3D→BEV 压缩算子。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">in_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">hidden_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">out_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">grid_size</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">],</span>
+    <span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>                                             <span class="c1"># 调用父类构造</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">in_channels</span> <span class="o">=</span> <span class="n">in_channels</span>                                 <span class="c1"># 输入通道数</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hidden_channels</span> <span class="o">=</span> <span class="n">hidden_channels</span>                         <span class="c1"># 中间通道数</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_channels</span> <span class="o">=</span> <span class="n">out_channels</span>                               <span class="c1"># 输出通道数</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span> <span class="o">=</span> <span class="n">grid_size</span>                                     <span class="c1"># (Z, Y, X) 网格大小</span>
+
+        <span class="c1"># 简化版 3D 主干：两层 3D 卷积 + BN + ReLU</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv_block1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv3d</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">hidden_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>  <span class="c1"># 3D 卷积</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm3d</span><span class="p">(</span><span class="n">hidden_channels</span><span class="p">),</span>                                                <span class="c1"># BN</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>                                                         <span class="c1"># 激活</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv_block2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv3d</span><span class="p">(</span><span class="n">hidden_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>  <span class="c1"># 3D 卷积</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm3d</span><span class="p">(</span><span class="n">out_channels</span><span class="p">),</span>                                                    <span class="c1"># BN</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>                                                          <span class="c1"># 激活</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">voxel_feats</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">voxel_coords</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+        <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            voxel_feats (torch.Tensor):</span>
+<span class="sd">                体素特征，形状 (M, C_in)。              # 每个体素一个特征向量</span>
+<span class="sd">            voxel_coords (torch.Tensor):</span>
+<span class="sd">                体素坐标，形状 (M, 4)，格式为</span>
+<span class="sd">                [batch_idx, z, y, x]。                 # 体素在网格中的索引</span>
+<span class="sd">            batch_size (int):</span>
+<span class="sd">                当前批次大小 B。                       # batch 数量</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor:</span>
+<span class="sd">                三维特征体，形状 (B, C_out, Z, Y, X)。  # 稠密 3D 特征</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">voxel_feats</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;voxel_feats 必须是 (M, C_in) 张量&quot;</span>       <span class="c1"># 检查维度</span>
+        <span class="k">assert</span> <span class="n">voxel_coords</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">voxel_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;voxel_coords 必须是 (M, 4) 张量&quot;</span>  <span class="c1"># 检查维度</span>
+
+        <span class="n">device</span> <span class="o">=</span> <span class="n">voxel_feats</span><span class="o">.</span><span class="n">device</span>                                           <span class="c1"># 获取设备</span>
+        <span class="n">M</span><span class="p">,</span> <span class="n">C_in</span> <span class="o">=</span> <span class="n">voxel_feats</span><span class="o">.</span><span class="n">shape</span>                                           <span class="c1"># 读取体素数量与通道数</span>
+        <span class="n">Z</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span>                                              <span class="c1"># 解包网格尺寸</span>
+
+        <span class="c1"># 初始化稠密体素网格： (B, C_in, Z, Y, X)</span>
+        <span class="n">dense_grid</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+            <span class="n">batch_size</span><span class="p">,</span>
+            <span class="n">C_in</span><span class="p">,</span>
+            <span class="n">Z</span><span class="p">,</span>
+            <span class="n">Y</span><span class="p">,</span>
+            <span class="n">X</span><span class="p">,</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">voxel_feats</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+            <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+        <span class="p">)</span>                                                                      <span class="c1"># 初始化 3D 体素网格</span>
+
+        <span class="c1"># 将稀疏体素特征 scatter 到稠密体素网格中</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">voxel_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>                                         <span class="c1"># batch 索引</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">voxel_coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>                                         <span class="c1"># z 轴索引</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">voxel_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>                                         <span class="c1"># y 轴索引</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">voxel_coords</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>                                         <span class="c1"># x 轴索引</span>
+
+        <span class="c1"># 过滤越界体素（理论上 voxelization 已经保证合法，这里再做一次安全检查）</span>
+        <span class="n">valid_mask</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="n">b</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">b</span> <span class="o">&lt;</span> <span class="n">batch_size</span><span class="p">)</span> <span class="o">&amp;</span>
+            <span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">z</span> <span class="o">&lt;</span> <span class="n">Z</span><span class="p">)</span> <span class="o">&amp;</span>
+            <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;</span> <span class="n">Y</span><span class="p">)</span> <span class="o">&amp;</span>
+            <span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">X</span><span class="p">)</span>
+        <span class="p">)</span>                                                                      <span class="c1"># 合法体素掩码</span>
+
+        <span class="k">if</span> <span class="n">valid_mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>                                                  <span class="c1"># 若存在合法体素</span>
+            <span class="n">b_valid</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>                                           <span class="c1"># 有效 batch 索引</span>
+            <span class="n">z_valid</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>                                           <span class="c1"># 有效 z 索引</span>
+            <span class="n">y_valid</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>                                           <span class="c1"># 有效 y 索引</span>
+            <span class="n">x_valid</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>                                           <span class="c1"># 有效 x 索引</span>
+            <span class="n">feats_valid</span> <span class="o">=</span> <span class="n">voxel_feats</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>                             <span class="c1"># 有效体素特征 (M_valid,C_in)</span>
+
+            <span class="n">dense_grid</span><span class="p">[</span><span class="n">b_valid</span><span class="p">,</span> <span class="p">:,</span> <span class="n">z_valid</span><span class="p">,</span> <span class="n">y_valid</span><span class="p">,</span> <span class="n">x_valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">feats_valid</span>   <span class="c1"># 填充到稠密网格中</span>
+
+        <span class="c1"># 通过 3D 卷积主干提取三维特征</span>
+        <span class="n">x3d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv_block1</span><span class="p">(</span><span class="n">dense_grid</span><span class="p">)</span>                                    <span class="c1"># 第一层 3D 卷积块</span>
+        <span class="n">x3d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv_block2</span><span class="p">(</span><span class="n">x3d</span><span class="p">)</span>                                           <span class="c1"># 第二层 3D 卷积块</span>
+
+        <span class="k">return</span> <span class="n">x3d</span>                                                            <span class="c1"># 返回三维特征体</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="lidar_side.network.Sparse3DBackbone.Sparse3DBackbone.forward" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">forward</span><span class="p">(</span><span class="n">voxel_feats</span><span class="p">,</span> <span class="n">voxel_coords</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">)</span></code>
+
+<a href="#lidar_side.network.Sparse3DBackbone.Sparse3DBackbone.forward" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>voxel_feats</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>体素特征，形状 (M, C_in)。              # 每个体素一个特征向量</p>
+              </div>
+            </li>
+            <li>
+              <b><code>voxel_coords</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>体素坐标，形状 (M, 4)，格式为
+[batch_idx, z, y, x]。                 # 体素在网格中的索引</p>
+              </div>
+            </li>
+            <li>
+              <b><code>batch_size</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>当前批次大小 B。                       # batch 数量</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="torch.Tensor">Tensor</span></code>
+              –
+              <div class="doc-md-description">
+                <p>torch.Tensor:
+三维特征体，形状 (B, C_out, Z, Y, X)。  # 稠密 3D 特征</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>lidar_side\network\Sparse3DBackbone.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">voxel_feats</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">voxel_coords</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        voxel_feats (torch.Tensor):</span>
+<span class="sd">            体素特征，形状 (M, C_in)。              # 每个体素一个特征向量</span>
+<span class="sd">        voxel_coords (torch.Tensor):</span>
+<span class="sd">            体素坐标，形状 (M, 4)，格式为</span>
+<span class="sd">            [batch_idx, z, y, x]。                 # 体素在网格中的索引</span>
+<span class="sd">        batch_size (int):</span>
+<span class="sd">            当前批次大小 B。                       # batch 数量</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor:</span>
+<span class="sd">            三维特征体，形状 (B, C_out, Z, Y, X)。  # 稠密 3D 特征</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">voxel_feats</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;voxel_feats 必须是 (M, C_in) 张量&quot;</span>       <span class="c1"># 检查维度</span>
+    <span class="k">assert</span> <span class="n">voxel_coords</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">voxel_coords</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;voxel_coords 必须是 (M, 4) 张量&quot;</span>  <span class="c1"># 检查维度</span>
+
+    <span class="n">device</span> <span class="o">=</span> <span class="n">voxel_feats</span><span class="o">.</span><span class="n">device</span>                                           <span class="c1"># 获取设备</span>
+    <span class="n">M</span><span class="p">,</span> <span class="n">C_in</span> <span class="o">=</span> <span class="n">voxel_feats</span><span class="o">.</span><span class="n">shape</span>                                           <span class="c1"># 读取体素数量与通道数</span>
+    <span class="n">Z</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_size</span>                                              <span class="c1"># 解包网格尺寸</span>
+
+    <span class="c1"># 初始化稠密体素网格： (B, C_in, Z, Y, X)</span>
+    <span class="n">dense_grid</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+        <span class="n">batch_size</span><span class="p">,</span>
+        <span class="n">C_in</span><span class="p">,</span>
+        <span class="n">Z</span><span class="p">,</span>
+        <span class="n">Y</span><span class="p">,</span>
+        <span class="n">X</span><span class="p">,</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="n">voxel_feats</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+        <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+    <span class="p">)</span>                                                                      <span class="c1"># 初始化 3D 体素网格</span>
+
+    <span class="c1"># 将稀疏体素特征 scatter 到稠密体素网格中</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">voxel_coords</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>                                         <span class="c1"># batch 索引</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">voxel_coords</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>                                         <span class="c1"># z 轴索引</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">voxel_coords</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>                                         <span class="c1"># y 轴索引</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">voxel_coords</span><span class="p">[:,</span> <span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>                                         <span class="c1"># x 轴索引</span>
+
+    <span class="c1"># 过滤越界体素（理论上 voxelization 已经保证合法，这里再做一次安全检查）</span>
+    <span class="n">valid_mask</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="n">b</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">b</span> <span class="o">&lt;</span> <span class="n">batch_size</span><span class="p">)</span> <span class="o">&amp;</span>
+        <span class="p">(</span><span class="n">z</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">z</span> <span class="o">&lt;</span> <span class="n">Z</span><span class="p">)</span> <span class="o">&amp;</span>
+        <span class="p">(</span><span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span> <span class="o">&lt;</span> <span class="n">Y</span><span class="p">)</span> <span class="o">&amp;</span>
+        <span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="n">X</span><span class="p">)</span>
+    <span class="p">)</span>                                                                      <span class="c1"># 合法体素掩码</span>
+
+    <span class="k">if</span> <span class="n">valid_mask</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>                                                  <span class="c1"># 若存在合法体素</span>
+        <span class="n">b_valid</span> <span class="o">=</span> <span class="n">b</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>                                           <span class="c1"># 有效 batch 索引</span>
+        <span class="n">z_valid</span> <span class="o">=</span> <span class="n">z</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>                                           <span class="c1"># 有效 z 索引</span>
+        <span class="n">y_valid</span> <span class="o">=</span> <span class="n">y</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>                                           <span class="c1"># 有效 y 索引</span>
+        <span class="n">x_valid</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>                                           <span class="c1"># 有效 x 索引</span>
+        <span class="n">feats_valid</span> <span class="o">=</span> <span class="n">voxel_feats</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>                             <span class="c1"># 有效体素特征 (M_valid,C_in)</span>
+
+        <span class="n">dense_grid</span><span class="p">[</span><span class="n">b_valid</span><span class="p">,</span> <span class="p">:,</span> <span class="n">z_valid</span><span class="p">,</span> <span class="n">y_valid</span><span class="p">,</span> <span class="n">x_valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">feats_valid</span>   <span class="c1"># 填充到稠密网格中</span>
+
+    <span class="c1"># 通过 3D 卷积主干提取三维特征</span>
+    <span class="n">x3d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv_block1</span><span class="p">(</span><span class="n">dense_grid</span><span class="p">)</span>                                    <span class="c1"># 第一层 3D 卷积块</span>
+    <span class="n">x3d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv_block2</span><span class="p">(</span><span class="n">x3d</span><span class="p">)</span>                                           <span class="c1"># 第二层 3D 卷积块</span>
+
+    <span class="k">return</span> <span class="n">x3d</span>                                                            <span class="c1"># 返回三维特征体</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h2 id="lidar_flatten_z_to_bev"><code>'lidar_flatten_z_to_bev'</code><a class="headerlink" href="#lidar_flatten_z_to_bev" title="Permanent link">&para;</a></h2>
+<p>将 3D 特征沿高度维（Z）压缩为 BEV 平面特征。</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="lidar_side.operator.lidar_flatten_z_to_bev"></a>
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="lidar_side.operator.lidar_flatten_z_to_bev.lidar_flatten_z_to_bev" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">lidar_flatten_z_to_bev</span><span class="p">(</span><span class="n">feat_3d</span><span class="p">)</span></code>
+
+<a href="#lidar_side.operator.lidar_flatten_z_to_bev.lidar_flatten_z_to_bev" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>将 LiDAR 三维体素特征沿高度维度 z 进行聚合，压缩为 BEV 平面上的
+二维特征图，输出形状为 (B, C, H, W)。</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>feat_3d</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(B, C, Z, H, W)
+LiDAR 分支输出的三维特征体：
+  - B: batch size
+  - C: 通道数
+  - Z: 高度方向体素层数
+  - H, W: 水平平面上的体素网格尺寸。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>bev_feat</code></b>(                  <code><span title="torch.Tensor">Tensor</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>(B, C, H, W)
+沿高度维度聚合后的 BEV 特征图，这里采用 sum pooling 进行聚合。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>lidar_side\operator\lidar_flatten_z_to_bev.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@torch</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">custom_op</span><span class="p">(</span>
+    <span class="s2">&quot;bevfusion_ops::lidar_flatten_z_to_bev&quot;</span><span class="p">,</span>
+    <span class="n">mutates_args</span><span class="o">=</span><span class="p">[]</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">lidar_flatten_z_to_bev</span><span class="p">(</span>
+    <span class="n">feat_3d</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    将 LiDAR 三维体素特征沿高度维度 z 进行聚合，压缩为 BEV 平面上的</span>
+<span class="sd">    二维特征图，输出形状为 (B, C, H, W)。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        feat_3d: (B, C, Z, H, W)</span>
+<span class="sd">            LiDAR 分支输出的三维特征体：</span>
+<span class="sd">              - B: batch size</span>
+<span class="sd">              - C: 通道数</span>
+<span class="sd">              - Z: 高度方向体素层数</span>
+<span class="sd">              - H, W: 水平平面上的体素网格尺寸。</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bev_feat: (B, C, H, W)</span>
+<span class="sd">            沿高度维度聚合后的 BEV 特征图，这里采用 sum pooling 进行聚合。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">feat_3d</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;feat_3d 必须是 (B, C, Z, H, W) 张量&quot;</span>   <span class="c1"># 基本形状检查</span>
+
+    <span class="c1"># 使用 sum pooling 沿高度维度聚合：</span>
+    <span class="c1"># (B, C, Z, H, W) → (B, C, H, W)</span>
+    <span class="n">bev_feat</span> <span class="o">=</span> <span class="n">feat_3d</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>                                      <span class="c1"># 沿 Z 维求和</span>
+
+    <span class="k">return</span> <span class="n">bev_feat</span>                                                    <span class="c1"># 返回 BEV 特征</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../camera_side/" class="btn btn-neutral float-left" title="Camera 分支模块"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../bev_space_integration/" class="btn btn-neutral float-right" title="BEV 空间融合模块">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../camera_side/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../bev_space_integration/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

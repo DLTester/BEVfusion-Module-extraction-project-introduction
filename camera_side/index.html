@@ -1,0 +1,2222 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Camera 分支模块 - BEVfusion 模块化提取文档</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../css/overrides.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Camera \u5206\u652f\u6a21\u5757";
+        var mkdocs_page_input_path = "camera_side.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> BEVfusion 模块化提取文档
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">首页</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../BEVFusionFramework/">BEVFusion 框架总览</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Camera 分支模块</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#api">API 文档</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#camerafpnfusion">CameraFPNFusion</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#camera_side.network.CameraFPNFusion">CameraFPNFusion</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#camera_side.network.CameraFPNFusion.CameraFPNFusion">CameraFPNFusion</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_side.network.CameraFPNFusion.CameraFPNFusion--_1">结构说明（按顺序）</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_side.network.CameraFPNFusion.CameraFPNFusion--_2">输入</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_side.network.CameraFPNFusion.CameraFPNFusion--_3">输出</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_side.network.CameraFPNFusion.CameraFPNFusion--_4">模块用途</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_side.network.CameraFPNFusion.CameraFPNFusion.__init__">__init__</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_side.network.CameraFPNFusion.CameraFPNFusion.forward">forward</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#depthdistributionhead">DepthDistributionHead</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#camera_side.network.DepthDistributionHead">DepthDistributionHead</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#camera_side.network.DepthDistributionHead.DepthDistributionHead">DepthDistributionHead</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_side.network.DepthDistributionHead.DepthDistributionHead--_1">结构说明（按顺序）</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_side.network.DepthDistributionHead.DepthDistributionHead--_2">输入</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_side.network.DepthDistributionHead.DepthDistributionHead--_3">输出</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_side.network.DepthDistributionHead.DepthDistributionHead--_4">模块用途</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_side.network.DepthDistributionHead.DepthDistributionHead.__init__">__init__</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_side.network.DepthDistributionHead.DepthDistributionHead.forward">forward</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_bev_pooling">camera_bev_pooling</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#camera_side.operator.camera_bev_pooling">camera_bev_pooling</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#camera_side.operator.camera_bev_pooling.camera_bev_pooling">camera_bev_pooling</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_geometry_transform">camera_geometry_transform</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#camera_side.operator.camera_geometry_transform">camera_geometry_transform</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#camera_side.operator.camera_geometry_transform.camera_geometry_transform">camera_geometry_transform</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#camera_lift_2d_to_3d">camera_lift_2d_to_3d</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#camera_side.operator.camera_lift_2d_to_3d">camera_lift_2d_to_3d</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#camera_side.operator.camera_lift_2d_to_3d.camera_lift_2d_to_3d">camera_lift_2d_to_3d</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#depth_weighted_feature_expand">depth_weighted_feature_expand</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#camera_side.operator.depth_weighted_feature_expand">depth_weighted_feature_expand</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#camera_side.operator.depth_weighted_feature_expand.depth_weighted_feature_expand">depth_weighted_feature_expand</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../lidar_side/">LiDAR 分支模块</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../bev_space_integration/">BEV 空间融合模块</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">BEVfusion 模块化提取文档</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Camera 分支模块</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="camera-side">Camera Side（图像侧模块）<a class="headerlink" href="#camera-side" title="Permanent link">&para;</a></h1>
+<p>Camera Side 模块的作用是：<br />
+从多视角图像中提取语义特征、深度信息，并通过几何方法将 2D 特征转换到 3D / BEV 空间，为后续 BEV 融合提供图像侧 BEV 特征。</p>
+<p>本模块包含四类核心功能：</p>
+<ol>
+<li>
+<p><strong>图像特征提取网络（FPN / Backbone）</strong><br />
+   提取多尺度图像语义特征。</p>
+</li>
+<li>
+<p><strong>深度预测模块</strong><br />
+   输出像素级深度概率分布，用于 Lift 特征到 3D。</p>
+</li>
+<li>
+<p><strong>几何投影算子（Lift / Transform / Pooling）</strong><br />
+   将图像特征映射至 3D 空间，再投影到 BEV 网格。</p>
+</li>
+<li>
+<p><strong>特征增强算子</strong><br />
+   对图像 BEV 特征进行加权或扩展。</p>
+</li>
+</ol>
+<hr />
+<h2 id="api">API 文档<a class="headerlink" href="#api" title="Permanent link">&para;</a></h2>
+<p>以下列出 Camera Side 中全部算子与网络模块，并给出其对应文件路径。</p>
+<hr />
+<h3 id="camerafpnfusion"><code>CameraFPNFusion</code><a class="headerlink" href="#camerafpnfusion" title="Permanent link">&para;</a></h3>
+<p>多尺度 FPN 特征融合模块。</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="camera_side.network.CameraFPNFusion"></a>
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="camera_side.network.CameraFPNFusion.CameraFPNFusion" class="doc doc-heading">
+            <code>CameraFPNFusion</code>
+
+
+<a href="#camera_side.network.CameraFPNFusion.CameraFPNFusion" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="torch.nn.Module">Module</span></code></p>
+
+
+        <p>CameraFPNFusion 模块（图像多尺度特征融合算子）。</p>
+<p>该模块通过对多尺度相机特征分别做 1×1 Conv 通道映射、上采样到统一空间分辨率，
+然后在通道维度上逐元素相加，得到一张融合后的 2D 特征图。该特征图作为后续
+深度估计与 Camera-to-BEV 视角变换的统一输入接口。</p>
+<hr />
+<h5 id="camera_side.network.CameraFPNFusion.CameraFPNFusion--_1">结构说明（按顺序）<a class="headerlink" href="#camera_side.network.CameraFPNFusion.CameraFPNFusion--_1" title="Permanent link">&para;</a></h5>
+<ol>
+<li>对每个尺度特征使用 <strong>Conv2d C_in_i → C_out, kernel_size=1, stride=1, padding=0</strong></li>
+<li>做通道线性变换，映射到统一通道数 C_out</li>
+<li><strong>(可选) BatchNorm2d</strong></li>
+<li>对每个尺度映射后的特征做归一化</li>
+<li><strong>(可选) ReLU 激活</strong></li>
+<li>在融合前增强非线性表达能力</li>
+<li>特征上采样到最高分辨率并逐元素相加</li>
+<li>得到单尺度、多通道的融合特征图</li>
+</ol>
+<hr />
+<h5 id="camera_side.network.CameraFPNFusion.CameraFPNFusion--_2">输入<a class="headerlink" href="#camera_side.network.CameraFPNFusion.CameraFPNFusion--_2" title="Permanent link">&para;</a></h5>
+<p>Args:
+    feats (List[torch.Tensor]):
+        多尺度相机特征列表，长度为 N_scales。
+        第 i 个特征形状为 (B, C_in_i, H_i, W_i)：
+          - B: batch size
+          - C_in_i: 第 i 个尺度的通道数
+          - H_i, W_i: 第 i 个尺度的空间尺寸</p>
+<hr />
+<h5 id="camera_side.network.CameraFPNFusion.CameraFPNFusion--_3">输出<a class="headerlink" href="#camera_side.network.CameraFPNFusion.CameraFPNFusion--_3" title="Permanent link">&para;</a></h5>
+<p>Returns:
+    torch.Tensor:
+        融合后的单尺度特征图，形状为 (B, C_out, H_out, W_out)，
+        其中 H_out, W_out 等于列表中最高分辨率特征图的空间尺寸。</p>
+<hr />
+<h5 id="camera_side.network.CameraFPNFusion.CameraFPNFusion--_4">模块用途<a class="headerlink" href="#camera_side.network.CameraFPNFusion.CameraFPNFusion--_4" title="Permanent link">&para;</a></h5>
+<ul>
+<li>将来自相机 backbone 的多尺度特征对齐到统一空间尺度与通道数</li>
+<li>作为后续 depth head / LSS 视角变换算子的统一 2D 特征输入</li>
+<li>也可作为通用的多尺度特征融合算子复用于其它相机分支网络</li>
+</ul>
+
+              <details class="quote">
+                <summary>Source code in <code>camera_side\network\CameraFPNFusion.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CameraFPNFusion</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    CameraFPNFusion 模块（图像多尺度特征融合算子）。</span>
+
+<span class="sd">    该模块通过对多尺度相机特征分别做 1×1 Conv 通道映射、上采样到统一空间分辨率，</span>
+<span class="sd">    然后在通道维度上逐元素相加，得到一张融合后的 2D 特征图。该特征图作为后续</span>
+<span class="sd">    深度估计与 Camera-to-BEV 视角变换的统一输入接口。</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 结构说明（按顺序）</span>
+<span class="sd">    1. 对每个尺度特征使用 **Conv2d C_in_i → C_out, kernel_size=1, stride=1, padding=0**</span>
+<span class="sd">       - 做通道线性变换，映射到统一通道数 C_out</span>
+<span class="sd">    2. **(可选) BatchNorm2d**</span>
+<span class="sd">       - 对每个尺度映射后的特征做归一化</span>
+<span class="sd">    3. **(可选) ReLU 激活**</span>
+<span class="sd">       - 在融合前增强非线性表达能力</span>
+<span class="sd">    4. 特征上采样到最高分辨率并逐元素相加</span>
+<span class="sd">       - 得到单尺度、多通道的融合特征图</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 输入</span>
+<span class="sd">    Args:</span>
+<span class="sd">        feats (List[torch.Tensor]):</span>
+<span class="sd">            多尺度相机特征列表，长度为 N_scales。</span>
+<span class="sd">            第 i 个特征形状为 (B, C_in_i, H_i, W_i)：</span>
+<span class="sd">              - B: batch size</span>
+<span class="sd">              - C_in_i: 第 i 个尺度的通道数</span>
+<span class="sd">              - H_i, W_i: 第 i 个尺度的空间尺寸</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 输出</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor:</span>
+<span class="sd">            融合后的单尺度特征图，形状为 (B, C_out, H_out, W_out)，</span>
+<span class="sd">            其中 H_out, W_out 等于列表中最高分辨率特征图的空间尺寸。</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 模块用途</span>
+<span class="sd">    - 将来自相机 backbone 的多尺度特征对齐到统一空间尺度与通道数</span>
+<span class="sd">    - 作为后续 depth head / LSS 视角变换算子的统一 2D 特征输入</span>
+<span class="sd">    - 也可作为通用的多尺度特征融合算子复用于其它相机分支网络</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">in_channels_list</span><span class="p">,</span>
+        <span class="n">out_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">use_bn</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="n">use_relu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            in_channels_list (List[int]):</span>
+<span class="sd">                多尺度输入特征的通道数列表，长度为 N_scales。  # 简短解释</span>
+<span class="sd">            out_channels (int):</span>
+<span class="sd">                融合后特征的目标通道数。                        # 目标通道</span>
+<span class="sd">            use_bn (bool):</span>
+<span class="sd">                是否在 1×1 Conv 后使用 BatchNorm2d。            # 控制是否使用 BN</span>
+<span class="sd">            use_relu (bool):</span>
+<span class="sd">                是否在 BN 后使用 ReLU 激活。                     # 控制是否使用 ReLU</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>  <span class="c1"># 调用父类构造</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_channels</span> <span class="o">=</span> <span class="n">out_channels</span>  <span class="c1"># 记录输出通道数</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_bn</span> <span class="o">=</span> <span class="n">use_bn</span>              <span class="c1"># 记录是否使用 BN</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_relu</span> <span class="o">=</span> <span class="n">use_relu</span>          <span class="c1"># 记录是否使用 ReLU</span>
+
+        <span class="c1"># 为每个尺度构建一套 1×1 Conv (+BN+ReLU) 进行通道映射</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proj_layers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">()</span>           <span class="c1"># 保存每个尺度的映射层</span>
+        <span class="k">for</span> <span class="n">c_in</span> <span class="ow">in</span> <span class="n">in_channels_list</span><span class="p">:</span>                <span class="c1"># 遍历每个尺度的输入通道</span>
+            <span class="n">layers</span> <span class="o">=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">c_in</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="ow">not</span> <span class="n">use_bn</span><span class="p">)]</span>  <span class="c1"># 1×1 Conv</span>
+            <span class="k">if</span> <span class="n">use_bn</span><span class="p">:</span>
+                <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">out_channels</span><span class="p">))</span>               <span class="c1"># 可选 BN</span>
+            <span class="k">if</span> <span class="n">use_relu</span><span class="p">:</span>
+                <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>                      <span class="c1"># 可选 ReLU</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">proj_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">))</span>               <span class="c1"># 封装为顺序模块</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feats</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        前向计算：将多尺度特征映射到统一通道并上采样后相加。</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            feats (List[torch.Tensor]):</span>
+<span class="sd">                多尺度相机特征列表，形状参见类注释。           # 输入特征列表</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor:</span>
+<span class="sd">                融合后的单尺度特征图 (B, C_out, H_out, W_out)。  # 返回融合特征</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">feats</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj_layers</span><span class="p">),</span> <span class="s2">&quot;feats 数量与 proj_layers 不一致&quot;</span>  <span class="c1"># 简单检查</span>
+
+        <span class="c1"># 以第一个特征为最高分辨率参考</span>
+        <span class="n">ref_feat</span> <span class="o">=</span> <span class="n">feats</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>                                               <span class="c1"># 参考尺度特征</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">H_ref</span><span class="p">,</span> <span class="n">W_ref</span> <span class="o">=</span> <span class="n">ref_feat</span><span class="o">.</span><span class="n">shape</span>                               <span class="c1"># 参考空间尺寸</span>
+
+        <span class="n">fused</span> <span class="o">=</span> <span class="mf">0.0</span>                                                       <span class="c1"># 初始化融合结果</span>
+        <span class="k">for</span> <span class="n">feat</span><span class="p">,</span> <span class="n">proj</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">feats</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj_layers</span><span class="p">):</span>                   <span class="c1"># 遍历每个尺度</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">proj</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>                                                <span class="c1"># 通道映射到 C_out</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">!=</span> <span class="p">(</span><span class="n">H_ref</span><span class="p">,</span> <span class="n">W_ref</span><span class="p">):</span>                            <span class="c1"># 若空间尺寸不同</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">H_ref</span><span class="p">,</span> <span class="n">W_ref</span><span class="p">),</span>
+                                   <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;bilinear&quot;</span><span class="p">,</span> <span class="n">align_corners</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># 上采样到参考尺度</span>
+            <span class="n">fused</span> <span class="o">=</span> <span class="n">fused</span> <span class="o">+</span> <span class="n">x</span>                                             <span class="c1"># 逐尺度累加特征</span>
+
+        <span class="k">return</span> <span class="n">fused</span>                                                      <span class="c1"># 返回融合结果</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="camera_side.network.CameraFPNFusion.CameraFPNFusion.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">in_channels_list</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="n">use_bn</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_relu</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+<a href="#camera_side.network.CameraFPNFusion.CameraFPNFusion.__init__" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>in_channels_list</code></b>
+                  (<code>List[int]</code>)
+              –
+              <div class="doc-md-description">
+                <p>多尺度输入特征的通道数列表，长度为 N_scales。  # 简短解释</p>
+              </div>
+            </li>
+            <li>
+              <b><code>out_channels</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>融合后特征的目标通道数。                        # 目标通道</p>
+              </div>
+            </li>
+            <li>
+              <b><code>use_bn</code></b>
+                  (<code>bool</code>, default:
+                      <code>True</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>是否在 1×1 Conv 后使用 BatchNorm2d。            # 控制是否使用 BN</p>
+              </div>
+            </li>
+            <li>
+              <b><code>use_relu</code></b>
+                  (<code>bool</code>, default:
+                      <code>True</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>是否在 BN 后使用 ReLU 激活。                     # 控制是否使用 ReLU</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>camera_side\network\CameraFPNFusion.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">in_channels_list</span><span class="p">,</span>
+    <span class="n">out_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">use_bn</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">use_relu</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        in_channels_list (List[int]):</span>
+<span class="sd">            多尺度输入特征的通道数列表，长度为 N_scales。  # 简短解释</span>
+<span class="sd">        out_channels (int):</span>
+<span class="sd">            融合后特征的目标通道数。                        # 目标通道</span>
+<span class="sd">        use_bn (bool):</span>
+<span class="sd">            是否在 1×1 Conv 后使用 BatchNorm2d。            # 控制是否使用 BN</span>
+<span class="sd">        use_relu (bool):</span>
+<span class="sd">            是否在 BN 后使用 ReLU 激活。                     # 控制是否使用 ReLU</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>  <span class="c1"># 调用父类构造</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">out_channels</span> <span class="o">=</span> <span class="n">out_channels</span>  <span class="c1"># 记录输出通道数</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">use_bn</span> <span class="o">=</span> <span class="n">use_bn</span>              <span class="c1"># 记录是否使用 BN</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">use_relu</span> <span class="o">=</span> <span class="n">use_relu</span>          <span class="c1"># 记录是否使用 ReLU</span>
+
+    <span class="c1"># 为每个尺度构建一套 1×1 Conv (+BN+ReLU) 进行通道映射</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">proj_layers</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">ModuleList</span><span class="p">()</span>           <span class="c1"># 保存每个尺度的映射层</span>
+    <span class="k">for</span> <span class="n">c_in</span> <span class="ow">in</span> <span class="n">in_channels_list</span><span class="p">:</span>                <span class="c1"># 遍历每个尺度的输入通道</span>
+        <span class="n">layers</span> <span class="o">=</span> <span class="p">[</span><span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">c_in</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="ow">not</span> <span class="n">use_bn</span><span class="p">)]</span>  <span class="c1"># 1×1 Conv</span>
+        <span class="k">if</span> <span class="n">use_bn</span><span class="p">:</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">out_channels</span><span class="p">))</span>               <span class="c1"># 可选 BN</span>
+        <span class="k">if</span> <span class="n">use_relu</span><span class="p">:</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>                      <span class="c1"># 可选 ReLU</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proj_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">))</span>               <span class="c1"># 封装为顺序模块</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="camera_side.network.CameraFPNFusion.CameraFPNFusion.forward" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">forward</span><span class="p">(</span><span class="n">feats</span><span class="p">)</span></code>
+
+<a href="#camera_side.network.CameraFPNFusion.CameraFPNFusion.forward" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>前向计算：将多尺度特征映射到统一通道并上采样后相加。</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>feats</code></b>
+                  (<code>List[<span title="torch.Tensor">Tensor</span>]</code>)
+              –
+              <div class="doc-md-description">
+                <p>多尺度相机特征列表，形状参见类注释。           # 输入特征列表</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              –
+              <div class="doc-md-description">
+                <p>torch.Tensor:
+融合后的单尺度特征图 (B, C_out, H_out, W_out)。  # 返回融合特征</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>camera_side\network\CameraFPNFusion.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feats</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    前向计算：将多尺度特征映射到统一通道并上采样后相加。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        feats (List[torch.Tensor]):</span>
+<span class="sd">            多尺度相机特征列表，形状参见类注释。           # 输入特征列表</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor:</span>
+<span class="sd">            融合后的单尺度特征图 (B, C_out, H_out, W_out)。  # 返回融合特征</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">feats</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">proj_layers</span><span class="p">),</span> <span class="s2">&quot;feats 数量与 proj_layers 不一致&quot;</span>  <span class="c1"># 简单检查</span>
+
+    <span class="c1"># 以第一个特征为最高分辨率参考</span>
+    <span class="n">ref_feat</span> <span class="o">=</span> <span class="n">feats</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>                                               <span class="c1"># 参考尺度特征</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">H_ref</span><span class="p">,</span> <span class="n">W_ref</span> <span class="o">=</span> <span class="n">ref_feat</span><span class="o">.</span><span class="n">shape</span>                               <span class="c1"># 参考空间尺寸</span>
+
+    <span class="n">fused</span> <span class="o">=</span> <span class="mf">0.0</span>                                                       <span class="c1"># 初始化融合结果</span>
+    <span class="k">for</span> <span class="n">feat</span><span class="p">,</span> <span class="n">proj</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">feats</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj_layers</span><span class="p">):</span>                   <span class="c1"># 遍历每个尺度</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">proj</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>                                                <span class="c1"># 通道映射到 C_out</span>
+        <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">!=</span> <span class="p">(</span><span class="n">H_ref</span><span class="p">,</span> <span class="n">W_ref</span><span class="p">):</span>                            <span class="c1"># 若空间尺寸不同</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="n">H_ref</span><span class="p">,</span> <span class="n">W_ref</span><span class="p">),</span>
+                               <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;bilinear&quot;</span><span class="p">,</span> <span class="n">align_corners</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># 上采样到参考尺度</span>
+        <span class="n">fused</span> <span class="o">=</span> <span class="n">fused</span> <span class="o">+</span> <span class="n">x</span>                                             <span class="c1"># 逐尺度累加特征</span>
+
+    <span class="k">return</span> <span class="n">fused</span>                                                      <span class="c1"># 返回融合结果</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h3 id="depthdistributionhead"><code>DepthDistributionHead</code><a class="headerlink" href="#depthdistributionhead" title="Permanent link">&para;</a></h3>
+<p>像素级深度分布预测模块。</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="camera_side.network.DepthDistributionHead"></a>
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="camera_side.network.DepthDistributionHead.DepthDistributionHead" class="doc doc-heading">
+            <code>DepthDistributionHead</code>
+
+
+<a href="#camera_side.network.DepthDistributionHead.DepthDistributionHead" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="torch.nn.Module">Module</span></code></p>
+
+
+        <p>DepthDistributionHead 模块（像素深度分布预测算子）。</p>
+<p>该模块接收融合后的相机 2D 特征图，通过若干 2D 卷积层预测每个像素在
+离散深度 bins 上的概率分布，用于后续的 2D→3D 升维与 Camera-to-BEV
+视角变换。输出为 (B, D, H, W)，在深度维度上做 softmax 归一化。</p>
+<hr />
+<h5 id="camera_side.network.DepthDistributionHead.DepthDistributionHead--_1">结构说明（按顺序）<a class="headerlink" href="#camera_side.network.DepthDistributionHead.DepthDistributionHead--_1" title="Permanent link">&para;</a></h5>
+<ol>
+<li><strong>Conv2d C_in → C_mid, kernel_size=3, padding=1</strong></li>
+<li>对输入特征做局部感受野增强</li>
+<li><strong>(可选) BatchNorm2d + ReLU</strong></li>
+<li>稳定训练并引入非线性</li>
+<li><strong>Conv2d C_mid → D, kernel_size=1</strong></li>
+<li>映射到深度通道维度 D</li>
+<li><strong>Softmax (沿 depth 维度)</strong></li>
+<li>得到每个像素的深度概率分布</li>
+</ol>
+<hr />
+<h5 id="camera_side.network.DepthDistributionHead.DepthDistributionHead--_2">输入<a class="headerlink" href="#camera_side.network.DepthDistributionHead.DepthDistributionHead--_2" title="Permanent link">&para;</a></h5>
+<p>Args:
+    x (torch.Tensor):
+        相机融合特征，形状 (B, C_in, H, W)：
+          - B: batch size
+          - C_in: 输入通道数
+          - H, W: 特征图空间尺寸</p>
+<hr />
+<h5 id="camera_side.network.DepthDistributionHead.DepthDistributionHead--_3">输出<a class="headerlink" href="#camera_side.network.DepthDistributionHead.DepthDistributionHead--_3" title="Permanent link">&para;</a></h5>
+<p>Returns:
+    torch.Tensor:
+        像素深度概率分布，形状 (B, D, H, W)，在维度 1 上求和为 1。</p>
+<hr />
+<h5 id="camera_side.network.DepthDistributionHead.DepthDistributionHead--_4">模块用途<a class="headerlink" href="#camera_side.network.DepthDistributionHead.DepthDistributionHead--_4" title="Permanent link">&para;</a></h5>
+<ul>
+<li>为 LSS / BEVFusion 提供每个像素在离散深度上的概率估计</li>
+<li>后续算子 <code>camera_lift_2d_to_3d</code>、<code>depth_weighted_feature_expand</code>
+  将复用该深度分布完成 2D→3D 升维与特征加权</li>
+</ul>
+
+              <details class="quote">
+                <summary>Source code in <code>camera_side\network\DepthDistributionHead.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DepthDistributionHead</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DepthDistributionHead 模块（像素深度分布预测算子）。</span>
+
+<span class="sd">    该模块接收融合后的相机 2D 特征图，通过若干 2D 卷积层预测每个像素在</span>
+<span class="sd">    离散深度 bins 上的概率分布，用于后续的 2D→3D 升维与 Camera-to-BEV</span>
+<span class="sd">    视角变换。输出为 (B, D, H, W)，在深度维度上做 softmax 归一化。</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 结构说明（按顺序）</span>
+<span class="sd">    1. **Conv2d C_in → C_mid, kernel_size=3, padding=1**</span>
+<span class="sd">       - 对输入特征做局部感受野增强</span>
+<span class="sd">    2. **(可选) BatchNorm2d + ReLU**</span>
+<span class="sd">       - 稳定训练并引入非线性</span>
+<span class="sd">    3. **Conv2d C_mid → D, kernel_size=1**</span>
+<span class="sd">       - 映射到深度通道维度 D</span>
+<span class="sd">    4. **Softmax (沿 depth 维度)**</span>
+<span class="sd">       - 得到每个像素的深度概率分布</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 输入</span>
+<span class="sd">    Args:</span>
+<span class="sd">        x (torch.Tensor):</span>
+<span class="sd">            相机融合特征，形状 (B, C_in, H, W)：</span>
+<span class="sd">              - B: batch size</span>
+<span class="sd">              - C_in: 输入通道数</span>
+<span class="sd">              - H, W: 特征图空间尺寸</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 输出</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor:</span>
+<span class="sd">            像素深度概率分布，形状 (B, D, H, W)，在维度 1 上求和为 1。</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 模块用途</span>
+<span class="sd">    - 为 LSS / BEVFusion 提供每个像素在离散深度上的概率估计</span>
+<span class="sd">    - 后续算子 `camera_lift_2d_to_3d`、`depth_weighted_feature_expand`</span>
+<span class="sd">      将复用该深度分布完成 2D→3D 升维与特征加权</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">in_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">mid_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">num_depth_bins</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">use_bn</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            in_channels (int):</span>
+<span class="sd">                输入特征通道数。                       # C_in</span>
+<span class="sd">            mid_channels (int):</span>
+<span class="sd">                中间隐层通道数。                       # C_mid</span>
+<span class="sd">            num_depth_bins (int):</span>
+<span class="sd">                深度离散 bin 数量 D。                  # D</span>
+<span class="sd">            use_bn (bool):</span>
+<span class="sd">                是否在第一层卷积后使用 BatchNorm2d。  # 控制是否使用 BN</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>                                               <span class="c1"># 父类构造</span>
+
+        <span class="n">layers</span> <span class="o">=</span> <span class="p">[</span>                                                       <span class="c1"># 第一层 conv 及可选 BN+ReLU</span>
+            <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">mid_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="ow">not</span> <span class="n">use_bn</span><span class="p">)</span>  <span class="c1"># 3×3 Conv</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">use_bn</span><span class="p">:</span>                                                       <span class="c1"># 是否加入 BN</span>
+            <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">mid_channels</span><span class="p">))</span>                  <span class="c1"># BN 层</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>                             <span class="c1"># ReLU 激活</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">stem</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">)</span>                               <span class="c1"># 封装为顺序模块</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth_logits</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">mid_channels</span><span class="p">,</span> <span class="n">num_depth_bins</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 1×1 Conv 预测 D 通道</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_depth_bins</span> <span class="o">=</span> <span class="n">num_depth_bins</span>                             <span class="c1"># 记录深度 bins 数</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor):</span>
+<span class="sd">                输入相机特征，形状 (B, C_in, H, W)。   # 输入特征</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor:</span>
+<span class="sd">                深度概率分布 (B, D, H, W)。           # 输出分布</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">feat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                              <span class="c1"># 提取中间特征</span>
+        <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_logits</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>                                 <span class="c1"># 生成深度 logits</span>
+
+        <span class="c1"># 在深度维度上做 softmax，得到每个像素的深度概率分布</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>                                  <span class="c1"># 沿通道维归一化</span>
+
+        <span class="k">return</span> <span class="n">prob</span>                                                      <span class="c1"># 返回深度分布</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="camera_side.network.DepthDistributionHead.DepthDistributionHead.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">mid_channels</span><span class="p">,</span> <span class="n">num_depth_bins</span><span class="p">,</span> <span class="n">use_bn</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></code>
+
+<a href="#camera_side.network.DepthDistributionHead.DepthDistributionHead.__init__" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>in_channels</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>输入特征通道数。                       # C_in</p>
+              </div>
+            </li>
+            <li>
+              <b><code>mid_channels</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>中间隐层通道数。                       # C_mid</p>
+              </div>
+            </li>
+            <li>
+              <b><code>num_depth_bins</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>深度离散 bin 数量 D。                  # D</p>
+              </div>
+            </li>
+            <li>
+              <b><code>use_bn</code></b>
+                  (<code>bool</code>, default:
+                      <code>True</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>是否在第一层卷积后使用 BatchNorm2d。  # 控制是否使用 BN</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>camera_side\network\DepthDistributionHead.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">in_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">mid_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">num_depth_bins</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">use_bn</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        in_channels (int):</span>
+<span class="sd">            输入特征通道数。                       # C_in</span>
+<span class="sd">        mid_channels (int):</span>
+<span class="sd">            中间隐层通道数。                       # C_mid</span>
+<span class="sd">        num_depth_bins (int):</span>
+<span class="sd">            深度离散 bin 数量 D。                  # D</span>
+<span class="sd">        use_bn (bool):</span>
+<span class="sd">            是否在第一层卷积后使用 BatchNorm2d。  # 控制是否使用 BN</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>                                               <span class="c1"># 父类构造</span>
+
+    <span class="n">layers</span> <span class="o">=</span> <span class="p">[</span>                                                       <span class="c1"># 第一层 conv 及可选 BN+ReLU</span>
+        <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">mid_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="ow">not</span> <span class="n">use_bn</span><span class="p">)</span>  <span class="c1"># 3×3 Conv</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">use_bn</span><span class="p">:</span>                                                       <span class="c1"># 是否加入 BN</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">mid_channels</span><span class="p">))</span>                  <span class="c1"># BN 层</span>
+    <span class="n">layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">ReLU</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>                             <span class="c1"># ReLU 激活</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">stem</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span><span class="o">*</span><span class="n">layers</span><span class="p">)</span>                               <span class="c1"># 封装为顺序模块</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">depth_logits</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">mid_channels</span><span class="p">,</span> <span class="n">num_depth_bins</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 1×1 Conv 预测 D 通道</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">num_depth_bins</span> <span class="o">=</span> <span class="n">num_depth_bins</span>                             <span class="c1"># 记录深度 bins 数</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="camera_side.network.DepthDistributionHead.DepthDistributionHead.forward" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">forward</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></code>
+
+<a href="#camera_side.network.DepthDistributionHead.DepthDistributionHead.forward" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>x</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>输入相机特征，形状 (B, C_in, H, W)。   # 输入特征</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="torch.Tensor">Tensor</span></code>
+              –
+              <div class="doc-md-description">
+                <p>torch.Tensor:
+深度概率分布 (B, D, H, W)。           # 输出分布</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>camera_side\network\DepthDistributionHead.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        x (torch.Tensor):</span>
+<span class="sd">            输入相机特征，形状 (B, C_in, H, W)。   # 输入特征</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor:</span>
+<span class="sd">            深度概率分布 (B, D, H, W)。           # 输出分布</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">feat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                              <span class="c1"># 提取中间特征</span>
+    <span class="n">logits</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_logits</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>                                 <span class="c1"># 生成深度 logits</span>
+
+    <span class="c1"># 在深度维度上做 softmax，得到每个像素的深度概率分布</span>
+    <span class="n">prob</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="n">logits</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>                                  <span class="c1"># 沿通道维归一化</span>
+
+    <span class="k">return</span> <span class="n">prob</span>                                                      <span class="c1"># 返回深度分布</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h3 id="camera_bev_pooling"><code>camera_bev_pooling</code><a class="headerlink" href="#camera_bev_pooling" title="Permanent link">&para;</a></h3>
+<p>将多视角 3D 特征池化到 BEV 网格中。</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="camera_side.operator.camera_bev_pooling"></a>
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="camera_side.operator.camera_bev_pooling.camera_bev_pooling" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">camera_bev_pooling</span><span class="p">(</span><span class="n">feat_3d</span><span class="p">,</span> <span class="n">bev_indices</span><span class="p">,</span> <span class="n">bev_h</span><span class="p">,</span> <span class="n">bev_w</span><span class="p">)</span></code>
+
+<a href="#camera_side.operator.camera_bev_pooling.camera_bev_pooling" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>将相机分支在体素 / frustum 空间中的三维特征聚合到 BEV 网格上，
+得到形状为 (B, C, bev_h, bev_w) 的 Camera BEV 特征图。</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>feat_3d</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(B, D, C, H, W)
+三维特征张量：
+  - B: batch size
+  - D: 深度维度长度（如深度 bins 或体素层数）
+  - C: 通道数
+  - H, W: 图像平面上的采样网格尺寸。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bev_indices</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(B, D, H, W, 2)
+每个三维体素在 BEV 网格上的整数索引 (i, j)：
+  - i: BEV 中的纵向索引，范围 [0, bev_h - 1]
+  - j: BEV 中的横向索引，范围 [0, bev_w - 1]
+  - 若某个位置为无效点，可将对应索引置为负数（如 -1）。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bev_h</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>int
+BEV 网格的高度（纵向网格数）。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bev_w</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>int
+BEV 网格的宽度（横向网格数）。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>bev_feat</code></b>(                  <code><span title="torch.Tensor">Tensor</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>(B, C, bev_h, bev_w)
+在 BEV 网格上聚合后的相机特征图，默认使用求和聚合（sum pooling）。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>camera_side\operator\camera_bev_pooling.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@torch</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">custom_op</span><span class="p">(</span>
+    <span class="s2">&quot;bevfusion_ops::camera_bev_pooling&quot;</span><span class="p">,</span>
+    <span class="n">mutates_args</span><span class="o">=</span><span class="p">[]</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">camera_bev_pooling</span><span class="p">(</span>
+    <span class="n">feat_3d</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">bev_indices</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">bev_h</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">bev_w</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    将相机分支在体素 / frustum 空间中的三维特征聚合到 BEV 网格上，</span>
+<span class="sd">    得到形状为 (B, C, bev_h, bev_w) 的 Camera BEV 特征图。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        feat_3d: (B, D, C, H, W)</span>
+<span class="sd">            三维特征张量：</span>
+<span class="sd">              - B: batch size</span>
+<span class="sd">              - D: 深度维度长度（如深度 bins 或体素层数）</span>
+<span class="sd">              - C: 通道数</span>
+<span class="sd">              - H, W: 图像平面上的采样网格尺寸。</span>
+<span class="sd">        bev_indices: (B, D, H, W, 2)</span>
+<span class="sd">            每个三维体素在 BEV 网格上的整数索引 (i, j)：</span>
+<span class="sd">              - i: BEV 中的纵向索引，范围 [0, bev_h - 1]</span>
+<span class="sd">              - j: BEV 中的横向索引，范围 [0, bev_w - 1]</span>
+<span class="sd">              - 若某个位置为无效点，可将对应索引置为负数（如 -1）。</span>
+<span class="sd">        bev_h: int</span>
+<span class="sd">            BEV 网格的高度（纵向网格数）。</span>
+<span class="sd">        bev_w: int</span>
+<span class="sd">            BEV 网格的宽度（横向网格数）。</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bev_feat: (B, C, bev_h, bev_w)</span>
+<span class="sd">            在 BEV 网格上聚合后的相机特征图，默认使用求和聚合（sum pooling）。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">feat_3d</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;feat_3d 必须是 (B, D, C, H, W) 张量&quot;</span>                    <span class="c1"># 基本形状检查</span>
+    <span class="k">assert</span> <span class="n">bev_indices</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;bev_indices 必须是 (B, D, H, W, 2) 张量&quot;</span>            <span class="c1"># 基本形状检查</span>
+
+    <span class="n">B</span><span class="p">,</span> <span class="n">D</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span> <span class="o">=</span> <span class="n">feat_3d</span><span class="o">.</span><span class="n">shape</span>                                                     <span class="c1"># 读取输入尺寸</span>
+    <span class="k">assert</span> <span class="n">bev_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">B</span> <span class="ow">and</span> <span class="n">bev_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">D</span><span class="p">,</span> <span class="s2">&quot;batch / depth 维度不匹配&quot;</span>  <span class="c1"># 检查 B,D</span>
+    <span class="k">assert</span> <span class="n">bev_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">H</span> <span class="ow">and</span> <span class="n">bev_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="n">W</span><span class="p">,</span> <span class="s2">&quot;空间尺寸 (H,W) 不匹配&quot;</span>      <span class="c1"># 检查 H,W</span>
+
+    <span class="n">device</span> <span class="o">=</span> <span class="n">feat_3d</span><span class="o">.</span><span class="n">device</span>                                                           <span class="c1"># 获取设备</span>
+    <span class="n">bev_feat</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">C</span><span class="p">,</span> <span class="n">bev_h</span><span class="p">,</span> <span class="n">bev_w</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>                         <span class="c1"># 初始化输出 BEV 特征</span>
+
+    <span class="c1"># 将三维体素展平到一个列表，按 batch 分别做 scatter-add</span>
+    <span class="c1"># feat_3d: (B, D, C, H, W) → (B, N, C)，其中 N = D*H*W</span>
+    <span class="n">N</span> <span class="o">=</span> <span class="n">D</span> <span class="o">*</span> <span class="n">H</span> <span class="o">*</span> <span class="n">W</span>                                                                      <span class="c1"># 三维位置数量</span>
+    <span class="n">feat_flat</span> <span class="o">=</span> <span class="n">feat_3d</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">C</span><span class="p">)</span>                        <span class="c1"># (B,N,C)</span>
+    <span class="n">idx_flat</span> <span class="o">=</span> <span class="n">bev_indices</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">B</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>                                            <span class="c1"># (B,N,2)</span>
+
+    <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">B</span><span class="p">):</span>                                                                 <span class="c1"># 遍历每个 batch</span>
+        <span class="n">feat_b</span> <span class="o">=</span> <span class="n">feat_flat</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>                                                          <span class="c1"># (N,C)</span>
+        <span class="n">idx_b</span> <span class="o">=</span> <span class="n">idx_flat</span><span class="p">[</span><span class="n">b</span><span class="p">]</span>                                                            <span class="c1"># (N,2)</span>
+
+        <span class="n">i</span> <span class="o">=</span> <span class="n">idx_b</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>                                                                <span class="c1"># 纵向索引</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">idx_b</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>                                                                <span class="c1"># 横向索引</span>
+
+        <span class="c1"># 有效位置掩码：索引在合法范围内</span>
+        <span class="n">valid_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">j</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">bev_h</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">j</span> <span class="o">&lt;</span> <span class="n">bev_w</span><span class="p">)</span>                   <span class="c1"># 过滤无效点</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid_mask</span><span class="p">):</span>                                                  <span class="c1"># 若全部无效则跳过</span>
+            <span class="k">continue</span>
+
+        <span class="n">i_valid</span> <span class="o">=</span> <span class="n">i</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>                                                        <span class="c1"># 有效 i</span>
+        <span class="n">j_valid</span> <span class="o">=</span> <span class="n">j</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>                                                        <span class="c1"># 有效 j</span>
+        <span class="n">feat_valid</span> <span class="o">=</span> <span class="n">feat_b</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>                                                <span class="c1"># 有效特征 (M,C)</span>
+
+        <span class="n">linear_idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">i_valid</span> <span class="o">*</span> <span class="n">bev_w</span> <span class="o">+</span> <span class="n">j_valid</span><span class="p">)</span><span class="o">.</span><span class="n">long</span><span class="p">()</span>                                <span class="c1"># 映射到一维索引 (M,)</span>
+
+        <span class="c1"># 将特征累加到 BEV 网格上：先展平为 (C, bev_h*bev_w)，在列维度做 index_add_</span>
+        <span class="n">bev_b_flat</span> <span class="o">=</span> <span class="n">bev_feat</span><span class="p">[</span><span class="n">b</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">C</span><span class="p">,</span> <span class="n">bev_h</span> <span class="o">*</span> <span class="n">bev_w</span><span class="p">)</span>                             <span class="c1"># (C, bev_h*bev_w)</span>
+        <span class="n">bev_b_flat</span><span class="o">.</span><span class="n">index_add_</span><span class="p">(</span>                                                         <span class="c1"># 按列累加特征</span>
+            <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">linear_idx</span><span class="p">,</span>
+            <span class="n">source</span><span class="o">=</span><span class="n">feat_valid</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>                                                       <span class="c1"># (C,M)</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bev_feat</span>                                                                    <span class="c1"># 返回聚合后的 BEV 特征</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h3 id="camera_geometry_transform"><code>camera_geometry_transform</code><a class="headerlink" href="#camera_geometry_transform" title="Permanent link">&para;</a></h3>
+<p>通过相机外参 + 内参将 2D 特征投影到 3D 坐标。</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="camera_side.operator.camera_geometry_transform"></a>
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="camera_side.operator.camera_geometry_transform.camera_geometry_transform" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">camera_geometry_transform</span><span class="p">(</span><span class="n">points_3d</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span></code>
+
+<a href="#camera_side.operator.camera_geometry_transform.camera_geometry_transform" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>将相机坐标系下的三维点云通过给定的旋转和平移变换到目标坐标系，
+并返回形状保持为 (D, H, W, 3) 的三维点云张量。</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>points_3d</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(D, H, W, 3)
+相机坐标系下的三维点云，通常由像素升维算子得到，格式为 (x, y, z)。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>R</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(3, 3)
+从相机坐标系到目标坐标系的旋转矩阵。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>t</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(3,)
+从相机坐标系到目标坐标系的平移向量。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>transformed_points</code></b>(                  <code><span title="torch.Tensor">Tensor</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>(D, H, W, 3)
+目标坐标系下的三维点云，形状与输入 points_3d 相同。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>camera_side\operator\camera_geometry_transform.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@torch</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">custom_op</span><span class="p">(</span><span class="s2">&quot;bevfusion_ops::camera_geometry_transform&quot;</span><span class="p">,</span> <span class="n">mutates_args</span><span class="o">=</span><span class="p">[])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">camera_geometry_transform</span><span class="p">(</span>
+    <span class="n">points_3d</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">R</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    将相机坐标系下的三维点云通过给定的旋转和平移变换到目标坐标系，</span>
+<span class="sd">    并返回形状保持为 (D, H, W, 3) 的三维点云张量。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        points_3d: (D, H, W, 3)</span>
+<span class="sd">            相机坐标系下的三维点云，通常由像素升维算子得到，格式为 (x, y, z)。</span>
+<span class="sd">        R: (3, 3)</span>
+<span class="sd">            从相机坐标系到目标坐标系的旋转矩阵。</span>
+<span class="sd">        t: (3,)</span>
+<span class="sd">            从相机坐标系到目标坐标系的平移向量。</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        transformed_points: (D, H, W, 3)</span>
+<span class="sd">            目标坐标系下的三维点云，形状与输入 points_3d 相同。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">D</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">points_3d</span><span class="o">.</span><span class="n">shape</span>                     <span class="c1"># 读取体素维度信息</span>
+
+    <span class="n">pts_flat</span> <span class="o">=</span> <span class="n">points_3d</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>              <span class="c1"># 展平成 (D*H*W, 3)</span>
+    <span class="n">pts_trans</span> <span class="o">=</span> <span class="p">(</span><span class="n">pts_flat</span> <span class="o">@</span> <span class="n">R</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="n">t</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>      <span class="c1"># 应用旋转和平移变换</span>
+    <span class="n">transformed_points</span> <span class="o">=</span> <span class="n">pts_trans</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>  <span class="c1"># 还原为 (D,H,W,3)</span>
+
+    <span class="k">return</span> <span class="n">transformed_points</span>                        <span class="c1"># 返回变换后的点云</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h3 id="camera_lift_2d_to_3d"><code>camera_lift_2d_to_3d</code><a class="headerlink" href="#camera_lift_2d_to_3d" title="Permanent link">&para;</a></h3>
+<p>根据深度离散化（Depth Bins）将 2D 特征 Lift 到 3D Voxels。</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="camera_side.operator.camera_lift_2d_to_3d"></a>
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="camera_side.operator.camera_lift_2d_to_3d.camera_lift_2d_to_3d" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">camera_lift_2d_to_3d</span><span class="p">(</span><span class="n">pixels_2d</span><span class="p">,</span> <span class="n">depths</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">R</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span></code>
+
+<a href="#camera_side.operator.camera_lift_2d_to_3d.camera_lift_2d_to_3d" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>计算 2D 像素坐标在给定离散深度下对应的 3D 空间坐标，并返回形状为 (D, H, W, 3) 的三维点云张量。</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>pixels_2d</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(H, W, 2)
+像素坐标网格，格式为 (u, v)，表示图像平面上的二维像素坐标。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>depths</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(D,)
+离散深度取样值，一维深度 bin 向量。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>K</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(3, 3)
+相机内参矩阵。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>R</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(3, 3)
+相机到目标坐标系的旋转矩阵。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>t</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(3,)
+相机到目标坐标系的平移向量。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>points_3d</code></b>(                  <code><span title="torch.Tensor">Tensor</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>(D, H, W, 3)
+每个像素在每个深度 bin 下对应的三维空间坐标 (x, y, z)。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>camera_side\operator\camera_lift_2d_to_3d.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@torch</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">custom_op</span><span class="p">(</span><span class="s2">&quot;bevfusion_ops::camera_lift_2d_to_3d&quot;</span><span class="p">,</span> <span class="n">mutates_args</span><span class="o">=</span><span class="p">[])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">camera_lift_2d_to_3d</span><span class="p">(</span>
+    <span class="n">pixels_2d</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">depths</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">K</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">R</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">t</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    计算 2D 像素坐标在给定离散深度下对应的 3D 空间坐标，并返回形状为 (D, H, W, 3) 的三维点云张量。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pixels_2d: (H, W, 2)</span>
+<span class="sd">            像素坐标网格，格式为 (u, v)，表示图像平面上的二维像素坐标。</span>
+<span class="sd">        depths: (D,)</span>
+<span class="sd">            离散深度取样值，一维深度 bin 向量。</span>
+<span class="sd">        K: (3, 3)</span>
+<span class="sd">            相机内参矩阵。</span>
+<span class="sd">        R: (3, 3)</span>
+<span class="sd">            相机到目标坐标系的旋转矩阵。</span>
+<span class="sd">        t: (3,)</span>
+<span class="sd">            相机到目标坐标系的平移向量。</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        points_3d: (D, H, W, 3)</span>
+<span class="sd">            每个像素在每个深度 bin 下对应的三维空间坐标 (x, y, z)。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">pixels_2d</span><span class="o">.</span><span class="n">shape</span>                        <span class="c1"># 图像高宽</span>
+    <span class="n">D</span> <span class="o">=</span> <span class="n">depths</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>                              <span class="c1"># 深度 bin 数</span>
+
+    <span class="n">u</span> <span class="o">=</span> <span class="n">pixels_2d</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span>           <span class="c1"># 提取 u 坐标</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">pixels_2d</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">)</span>           <span class="c1"># 提取 v 坐标</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">depths</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>                         <span class="c1"># 深度扩展到 (D,1,1)</span>
+
+    <span class="c1"># 由针孔成像模型反算相机坐标系下的 (x, y, z)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span> <span class="o">-</span> <span class="n">K</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="n">z</span> <span class="o">/</span> <span class="n">K</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>                  <span class="c1"># 反投影得到 x</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span> <span class="o">-</span> <span class="n">K</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="n">z</span> <span class="o">/</span> <span class="n">K</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>                  <span class="c1"># 反投影得到 y</span>
+    <span class="n">z_expanded</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">expand_as</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                      <span class="c1"># 扩展 z 以便与 x,y 对齐</span>
+
+    <span class="n">pts_cam</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z_expanded</span><span class="p">],</span> <span class="n">dim</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># 相机系 3D 点 (D,H,W,3)</span>
+
+    <span class="n">pts_flat</span> <span class="o">=</span> <span class="n">pts_cam</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>                <span class="c1"># 展平为 (D*H*W, 3)</span>
+    <span class="n">pts_world</span> <span class="o">=</span> <span class="p">(</span><span class="n">pts_flat</span> <span class="o">@</span> <span class="n">R</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="n">t</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>      <span class="c1"># 坐标变换到目标坐标系</span>
+    <span class="n">pts_world</span> <span class="o">=</span> <span class="n">pts_world</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">D</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">W</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>        <span class="c1"># 恢复形状为 (D,H,W,3)</span>
+
+    <span class="k">return</span> <span class="n">pts_world</span>                                 <span class="c1"># 返回三维点云</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h3 id="depth_weighted_feature_expand"><code>depth_weighted_feature_expand</code><a class="headerlink" href="#depth_weighted_feature_expand" title="Permanent link">&para;</a></h3>
+<p>利用深度分布对图像特征进行加权扩展，增强 BEV 投影质量。</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="camera_side.operator.depth_weighted_feature_expand"></a>
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="camera_side.operator.depth_weighted_feature_expand.depth_weighted_feature_expand" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">depth_weighted_feature_expand</span><span class="p">(</span><span class="n">img_feats</span><span class="p">,</span> <span class="n">depth_prob</span><span class="p">)</span></code>
+
+<a href="#camera_side.operator.depth_weighted_feature_expand.depth_weighted_feature_expand" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>根据像素的深度概率分布，对相机 2D 特征进行加权并在深度维度上展开，
+得到形状为 (B, D, C, H, W) 的三维特征张量。</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>img_feats</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(B, C, H, W)
+相机分支输出的 2D 特征图：
+  - B: batch size
+  - C: 通道数
+  - H, W: 特征图空间尺寸。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>depth_prob</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(B, D, H, W)
+对应像素的离散深度概率分布：
+  - D: 深度 bin 数量
+  - 与 img_feats 在 (B, H, W) 维度上对齐。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>feat_3d</code></b>(                  <code><span title="torch.Tensor">Tensor</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>(B, D, C, H, W)
+按深度概率加权并在深度维度展开后的三维特征张量，
+每个体素位置同时编码了像素语义与对应深度权重。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>camera_side\operator\depth_weighted_feature_expand.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@torch</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">custom_op</span><span class="p">(</span>
+    <span class="s2">&quot;bevfusion_ops::depth_weighted_feature_expand&quot;</span><span class="p">,</span>
+    <span class="n">mutates_args</span><span class="o">=</span><span class="p">[]</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">depth_weighted_feature_expand</span><span class="p">(</span>
+    <span class="n">img_feats</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">depth_prob</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    根据像素的深度概率分布，对相机 2D 特征进行加权并在深度维度上展开，</span>
+<span class="sd">    得到形状为 (B, D, C, H, W) 的三维特征张量。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        img_feats: (B, C, H, W)</span>
+<span class="sd">            相机分支输出的 2D 特征图：</span>
+<span class="sd">              - B: batch size</span>
+<span class="sd">              - C: 通道数</span>
+<span class="sd">              - H, W: 特征图空间尺寸。</span>
+<span class="sd">        depth_prob: (B, D, H, W)</span>
+<span class="sd">            对应像素的离散深度概率分布：</span>
+<span class="sd">              - D: 深度 bin 数量</span>
+<span class="sd">              - 与 img_feats 在 (B, H, W) 维度上对齐。</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        feat_3d: (B, D, C, H, W)</span>
+<span class="sd">            按深度概率加权并在深度维度展开后的三维特征张量，</span>
+<span class="sd">            每个体素位置同时编码了像素语义与对应深度权重。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">img_feats</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;img_feats 必须是 (B, C, H, W) 张量&quot;</span>           <span class="c1"># 简单形状检查</span>
+    <span class="k">assert</span> <span class="n">depth_prob</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;depth_prob 必须是 (B, D, H, W) 张量&quot;</span>        <span class="c1"># 简单形状检查</span>
+    <span class="k">assert</span> <span class="n">img_feats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">depth_prob</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;batch 维度不匹配&quot;</span>        <span class="c1"># 检查 B</span>
+    <span class="k">assert</span> <span class="n">img_feats</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">==</span> <span class="n">depth_prob</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="s2">&quot;空间尺寸 (H,W) 不匹配&quot;</span>  <span class="c1"># 检查 H,W</span>
+
+    <span class="c1"># 扩展维度以便广播相乘：</span>
+    <span class="c1"># img_feats:   (B,    C, H, W) → (B, 1, C, H, W)</span>
+    <span class="c1"># depth_prob:  (B,    D, H, W) → (B, D, 1, H, W)</span>
+    <span class="n">img_feats_expanded</span> <span class="o">=</span> <span class="n">img_feats</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>                                  <span class="c1"># 在深度位置插入维度</span>
+    <span class="n">depth_prob_expanded</span> <span class="o">=</span> <span class="n">depth_prob</span><span class="o">.</span><span class="n">unsqueeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>                                <span class="c1"># 在通道位置插入维度</span>
+
+    <span class="n">feat_3d</span> <span class="o">=</span> <span class="n">img_feats_expanded</span> <span class="o">*</span> <span class="n">depth_prob_expanded</span>                           <span class="c1"># 按深度概率加权展开</span>
+
+    <span class="k">return</span> <span class="n">feat_3d</span>                                                                <span class="c1"># (B, D, C, H, W)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../BEVFusionFramework/" class="btn btn-neutral float-left" title="BEVFusion 框架总览"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../lidar_side/" class="btn btn-neutral float-right" title="LiDAR 分支模块">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../BEVFusionFramework/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../lidar_side/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="None" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>BEVfusion 模块化提取文档</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="css/overrides.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "\u9996\u9875";
+        var mkdocs_page_input_path = "index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="." class="icon icon-home"> BEVfusion 模块化提取文档
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">首页</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#camera">📷 Camera 侧模块</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#lidar">🛰 LiDAR 侧模块</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#bev">🗺 BEV 空间融合模块</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#bevfusion_1">🧩 BEVFusion 主框架</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="BEVFusionFramework/">BEVFusion 框架总览</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="camera_side/">Camera 分支模块</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="lidar_side/">LiDAR 分支模块</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="bev_space_integration/">BEV 空间融合模块</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href=".">BEVfusion 模块化提取文档</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">首页</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="bevfusion">BEVFusion 模块化提取文档<a class="headerlink" href="#bevfusion" title="Permanent link">&para;</a></h1>
+<p>本项目对 BEVFusion 网络的关键组件进行结构化拆分，形成 <strong>可复用算子（Operators）</strong> 与 <strong>可插拔网络模块（Networks）</strong>，方便理解、调试与二次开发。</p>
+<p>本文档旨在提供：</p>
+<ul>
+<li>各子模块的功能说明  </li>
+<li>对应算子与网络层的 API 文档  </li>
+<li>主框架 BEVFusionFramework 的整体调用关系  </li>
+</ul>
+<p>文档主要分为以下几个部分：</p>
+<h2 id="camera">📷 Camera 侧模块<a class="headerlink" href="#camera" title="Permanent link">&para;</a></h2>
+<p>包括图像特征提取、几何变换以及将特征映射到 BEV 空间的相关算子与网络结构。</p>
+<p>详见：<br />
+👉 <a href="camera_side/"><code>camera_side.md</code></a></p>
+<h2 id="lidar">🛰 LiDAR 侧模块<a class="headerlink" href="#lidar" title="Permanent link">&para;</a></h2>
+<p>包含体素化、稀疏卷积 Backbone、点云 BEV 映射等核心模块。</p>
+<p>详见：<br />
+👉 <a href="lidar_side/"><code>lidar_side.md</code></a></p>
+<h2 id="bev">🗺 BEV 空间融合模块<a class="headerlink" href="#bev" title="Permanent link">&para;</a></h2>
+<p>描述图像 BEV 与点云 BEV 的融合流程，包括 BEV 编码器与融合算子。</p>
+<p>详见：<br />
+👉 <a href="bev_space_integration/"><code>bev_space_integration.md</code></a></p>
+<h2 id="bevfusion_1">🧩 BEVFusion 主框架<a class="headerlink" href="#bevfusion_1" title="Permanent link">&para;</a></h2>
+<p>为以上各模块提供统一封装，定义完整的 BEVFusion 推理流程。</p>
+<p>详见：<br />
+👉 <a href="BEVFusionFramework/"><code>BEVFusionFramework.md</code></a></p>
+<hr />
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="BEVFusionFramework/" class="btn btn-neutral float-right" title="BEVFusion 框架总览">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+      <span><a href="BEVFusionFramework/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = ".";</script>
+    <script src="js/theme_extra.js"></script>
+    <script src="js/theme.js"></script>
+      <script src="search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.6.1
+Build Date UTC : 2025-12-11 07:37:46.731343+00:00
+-->

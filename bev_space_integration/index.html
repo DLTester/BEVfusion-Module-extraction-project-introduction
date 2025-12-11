@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>BEV 空间融合模块 - BEVfusion 模块化提取文档</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+        <link href="../css/overrides.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "BEV \u7a7a\u95f4\u878d\u5408\u6a21\u5757";
+        var mkdocs_page_input_path = "bev_space_integration.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> BEVfusion 模块化提取文档
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">首页</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../BEVFusionFramework/">BEVFusion 框架总览</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../camera_side/">Camera 分支模块</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../lidar_side/">LiDAR 分支模块</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">BEV 空间融合模块</a>
+    <ul class="current">
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">BEVfusion 模块化提取文档</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">BEV 空间融合模块</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="bev-space-integrationbev">BEV Space Integration（BEV 空间融合模块）<a class="headerlink" href="#bev-space-integrationbev" title="Permanent link">&para;</a></h1>
+<p>BEV Space Integration 模块的作用是：<br />
+将来自图像侧与点云侧的 BEV 特征进行统一空间表示与融合，<br />
+并通过 BEV 编码器提取高层语义特征，为最终任务检测头提供输入。</p>
+<p>本模块包含四类核心功能：</p>
+<ol>
+<li>
+<p><strong>图像 BEV 特征预处理</strong><br />
+   接收 Camera Side 的 BEV 特征并进行维度变换或对齐。</p>
+</li>
+<li>
+<p><strong>点云 BEV 特征预处理</strong><br />
+   接收 Lidar Side 的 BEV 特征并进行通道、尺度对齐。</p>
+</li>
+<li>
+<p><strong>多模态 BEV 融合算子</strong><br />
+   将图像 BEV 与点云 BEV 在同一空间中融合（如 concat / add / weighted fusion）。</p>
+</li>
+<li>
+<p><strong>BEV 编码器（BEV Encoder）</strong><br />
+   基于 2D CNN 提取最终高层 BEV 语义特征。</p>
+</li>
+</ol>
+<hr />
+<h1 id="api">API 文档<a class="headerlink" href="#api" title="Permanent link">&para;</a></h1>
+<p>以下列出 BEV 空间融合模块中的算子与网络模块，并给出对应文件路径。</p>
+<hr />
+<h2 id="bev_concat_fusion"><code>'bev_concat_fusion'</code><a class="headerlink" href="#bev_concat_fusion" title="Permanent link">&para;</a></h2>
+<p>将 Camera BEV 与 LiDAR BEV 进行通道维拼接融合。</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="BEV_space_integration.operator.bev_concat_fusion"></a>
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="BEV_space_integration.operator.bev_concat_fusion.bev_concat_fusion" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">bev_concat_fusion</span><span class="p">(</span><span class="n">bev_cam</span><span class="p">,</span> <span class="n">bev_lidar</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></code>
+
+<a href="#BEV_space_integration.operator.bev_concat_fusion.bev_concat_fusion" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>将相机分支与 LiDAR 分支在 BEV 平面上的特征图在通道维度上拼接，
+得到融合后的 BEV 特征图，形状为 (B, C_cam + C_lidar, H, W)。</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>bev_cam</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(B, C_cam, H, W)
+相机分支的 BEV 特征图：
+  - B: batch size
+  - C_cam: 相机 BEV 特征通道数
+  - H, W: BEV 网格的空间尺寸。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>bev_lidar</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>(B, C_lidar, H, W)
+LiDAR 分支的 BEV 特征图：
+  - C_lidar: LiDAR BEV 特征通道数
+  - H, W: 需与 bev_cam 在空间维度上对齐。</p>
+              </div>
+            </li>
+            <li>
+              <b><code>dim</code></b>
+                  (<code>int</code>, default:
+                      <code>1</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>int
+拼接维度，默认为 1（通道维度），通常不需要修改。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+<b><code>bev_fused</code></b>(                  <code><span title="torch.Tensor">Tensor</span></code>
+)              –
+              <div class="doc-md-description">
+                <p>(B, C_cam + C_lidar, H, W)
+在通道维度上拼接后的融合 BEV 特征图，可作为后续
+BEV 融合编码算子（如 ConvFuser）的输入。</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>BEV_space_integration\operator\bev_concat_fusion.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span>
+<span class="normal">21</span>
+<span class="normal">22</span>
+<span class="normal">23</span>
+<span class="normal">24</span>
+<span class="normal">25</span>
+<span class="normal">26</span>
+<span class="normal">27</span>
+<span class="normal">28</span>
+<span class="normal">29</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@torch</span><span class="o">.</span><span class="n">library</span><span class="o">.</span><span class="n">custom_op</span><span class="p">(</span>
+    <span class="s2">&quot;bevfusion_ops::bev_concat_fusion&quot;</span><span class="p">,</span>
+    <span class="n">mutates_args</span><span class="o">=</span><span class="p">[]</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">bev_concat_fusion</span><span class="p">(</span>
+    <span class="n">bev_cam</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">bev_lidar</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">,</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    将相机分支与 LiDAR 分支在 BEV 平面上的特征图在通道维度上拼接，</span>
+<span class="sd">    得到融合后的 BEV 特征图，形状为 (B, C_cam + C_lidar, H, W)。</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        bev_cam: (B, C_cam, H, W)</span>
+<span class="sd">            相机分支的 BEV 特征图：</span>
+<span class="sd">              - B: batch size</span>
+<span class="sd">              - C_cam: 相机 BEV 特征通道数</span>
+<span class="sd">              - H, W: BEV 网格的空间尺寸。</span>
+<span class="sd">        bev_lidar: (B, C_lidar, H, W)</span>
+<span class="sd">            LiDAR 分支的 BEV 特征图：</span>
+<span class="sd">              - C_lidar: LiDAR BEV 特征通道数</span>
+<span class="sd">              - H, W: 需与 bev_cam 在空间维度上对齐。</span>
+<span class="sd">        dim: int</span>
+<span class="sd">            拼接维度，默认为 1（通道维度），通常不需要修改。</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bev_fused: (B, C_cam + C_lidar, H, W)</span>
+<span class="sd">            在通道维度上拼接后的融合 BEV 特征图，可作为后续</span>
+<span class="sd">            BEV 融合编码算子（如 ConvFuser）的输入。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">bev_cam</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;bev_cam 必须是 (B, C, H, W) 张量&quot;</span>         <span class="c1"># 检查相机 BEV 形状</span>
+    <span class="k">assert</span> <span class="n">bev_lidar</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;bev_lidar 必须是 (B, C, H, W) 张量&quot;</span>     <span class="c1"># 检查 LiDAR BEV 形状</span>
+    <span class="k">assert</span> <span class="n">bev_cam</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">bev_lidar</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;batch 维度不匹配&quot;</span>      <span class="c1"># 检查 batch 维</span>
+    <span class="k">assert</span> <span class="n">bev_cam</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span> <span class="o">==</span> <span class="n">bev_lidar</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">:],</span> <span class="s2">&quot;空间尺寸 (H,W) 不匹配&quot;</span>  <span class="c1"># 检查空间尺寸</span>
+
+    <span class="n">bev_fused</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">cat</span><span class="p">([</span><span class="n">bev_cam</span><span class="p">,</span> <span class="n">bev_lidar</span><span class="p">],</span> <span class="n">dim</span><span class="o">=</span><span class="n">dim</span><span class="p">)</span>                  <span class="c1"># 在通道维度拼接特征</span>
+
+    <span class="k">return</span> <span class="n">bev_fused</span>                                                      <span class="c1"># 返回融合 BEV 特征</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><hr />
+<h2 id="bevfusionencoder"><code>'BEVFusionEncoder'</code><a class="headerlink" href="#bevfusionencoder" title="Permanent link">&para;</a></h2>
+<p>2D BEV 编码器，对融合后的 BEV 特征进行卷积处理。</p>
+
+
+<div class="doc doc-object doc-module">
+
+
+
+<a id="BEV_space_integration.network.BEVFusionEncoder"></a>
+    <div class="doc doc-contents first">
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder" class="doc doc-heading">
+            <code>BEVFusionEncoder</code>
+
+
+<a href="#BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="torch.nn.Module">Module</span></code></p>
+
+
+        <p>BEVFusionEncoder 模块（BEV 融合编码算子 / ConvFuser）。</p>
+<p>该模块接收在 BEV 平面上拼接后的多模态特征（Camera BEV + LiDAR BEV），
+通过若干层 2D 卷积对通道维与空间维进行联合建模，输出最终的
+Fused BEV Features，作为后续检测、分割等任务头的统一输入。</p>
+<hr />
+<h5 id="BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder--_1">结构说明（按顺序）<a class="headerlink" href="#BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder--_1" title="Permanent link">&para;</a></h5>
+<ol>
+<li><strong>Conv2d (C_in → C_mid, 3×3) + BN + ReLU</strong></li>
+<li>融合不同模态通道信息</li>
+<li><strong>Conv2d (C_mid → C_out, 3×3) + BN + ReLU</strong></li>
+<li>进一步提取 BEV 空间结构特征</li>
+<li>（可选）残差连接增强稳定性</li>
+</ol>
+<hr />
+<h5 id="BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder--_2">输入<a class="headerlink" href="#BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder--_2" title="Permanent link">&para;</a></h5>
+<p>Args:
+    x: (B, C_in, H, W)
+        拼接后的 BEV 特征图：
+          - B: batch size
+          - C_in: Camera BEV 通道数 + LiDAR BEV 通道数
+          - H, W: BEV 网格空间尺寸</p>
+<hr />
+<h5 id="BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder--_3">输出<a class="headerlink" href="#BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder--_3" title="Permanent link">&para;</a></h5>
+<p>Returns:
+    fused_bev: (B, C_out, H, W)
+        融合编码后的最终 BEV 特征图。</p>
+<hr />
+<h5 id="BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder--_4">模块用途<a class="headerlink" href="#BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder--_4" title="Permanent link">&para;</a></h5>
+<ul>
+<li>作为 Camera BEV 与 LiDAR BEV 之后的最终融合编码模块</li>
+<li>输出的 Fused BEV Features 直接用于下游 3D 检测 / 地图分割等任务</li>
+</ul>
+
+              <details class="quote">
+                <summary>Source code in <code>BEV_space_integration\network\BEVFusionEncoder.py</code></summary>
+                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">  6</span>
+<span class="normal">  7</span>
+<span class="normal">  8</span>
+<span class="normal">  9</span>
+<span class="normal"> 10</span>
+<span class="normal"> 11</span>
+<span class="normal"> 12</span>
+<span class="normal"> 13</span>
+<span class="normal"> 14</span>
+<span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">BEVFusionEncoder</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    BEVFusionEncoder 模块（BEV 融合编码算子 / ConvFuser）。</span>
+
+<span class="sd">    该模块接收在 BEV 平面上拼接后的多模态特征（Camera BEV + LiDAR BEV），</span>
+<span class="sd">    通过若干层 2D 卷积对通道维与空间维进行联合建模，输出最终的</span>
+<span class="sd">    Fused BEV Features，作为后续检测、分割等任务头的统一输入。</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 结构说明（按顺序）</span>
+<span class="sd">    1. **Conv2d (C_in → C_mid, 3×3) + BN + ReLU**</span>
+<span class="sd">       - 融合不同模态通道信息</span>
+<span class="sd">    2. **Conv2d (C_mid → C_out, 3×3) + BN + ReLU**</span>
+<span class="sd">       - 进一步提取 BEV 空间结构特征</span>
+<span class="sd">    3. （可选）残差连接增强稳定性</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 输入</span>
+<span class="sd">    Args:</span>
+<span class="sd">        x: (B, C_in, H, W)</span>
+<span class="sd">            拼接后的 BEV 特征图：</span>
+<span class="sd">              - B: batch size</span>
+<span class="sd">              - C_in: Camera BEV 通道数 + LiDAR BEV 通道数</span>
+<span class="sd">              - H, W: BEV 网格空间尺寸</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 输出</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        fused_bev: (B, C_out, H, W)</span>
+<span class="sd">            融合编码后的最终 BEV 特征图。</span>
+
+<span class="sd">    ---</span>
+<span class="sd">    ### 模块用途</span>
+<span class="sd">    - 作为 Camera BEV 与 LiDAR BEV 之后的最终融合编码模块</span>
+<span class="sd">    - 输出的 Fused BEV Features 直接用于下游 3D 检测 / 地图分割等任务</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">in_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">mid_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">out_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">use_residual</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            in_channels (int):</span>
+<span class="sd">                输入 BEV 特征通道数 C_in。              # 输入通道</span>
+<span class="sd">            mid_channels (int):</span>
+<span class="sd">                中间层通道数 C_mid。                   # 中间通道</span>
+<span class="sd">            out_channels (int):</span>
+<span class="sd">                输出 BEV 特征通道数 C_out。            # 输出通道</span>
+<span class="sd">            use_residual (bool):</span>
+<span class="sd">                是否使用残差连接。                     # 是否启用残差</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>  <span class="c1"># 调用父类构造</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_residual</span> <span class="o">=</span> <span class="n">use_residual</span>                                 <span class="c1"># 记录是否使用残差</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">mid_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># 第一层 3×3 Conv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bn1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">mid_channels</span><span class="p">)</span>                          <span class="c1"># BN</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">mid_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># 第二层 3×3 Conv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bn2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">out_channels</span><span class="p">)</span>                          <span class="c1"># BN</span>
+
+        <span class="k">if</span> <span class="n">use_residual</span> <span class="ow">and</span> <span class="n">in_channels</span> <span class="o">!=</span> <span class="n">out_channels</span><span class="p">:</span>                 <span class="c1"># 若通道不一致且启用残差</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">res_conv</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>     <span class="c1"># 通道对齐卷积</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">res_conv</span> <span class="o">=</span> <span class="kc">None</span>                                         <span class="c1"># 不使用残差对齐</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Args:</span>
+<span class="sd">            x (torch.Tensor):</span>
+<span class="sd">                输入 BEV 特征图，形状 (B, C_in, H, W)。   # 输入特征</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            torch.Tensor:</span>
+<span class="sd">                融合编码后的 BEV 特征图 (B, C_out, H, W)。 # 输出特征</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">x</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;x 必须是 (B, C, H, W) 张量&quot;</span>    <span class="c1"># 基本形状检查</span>
+
+        <span class="n">identity</span> <span class="o">=</span> <span class="n">x</span>                                       <span class="c1"># 保存残差分支</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                  <span class="c1"># 第一层卷积</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                    <span class="c1"># BN</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>                        <span class="c1"># ReLU</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                  <span class="c1"># 第二层卷积</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                    <span class="c1"># BN</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_residual</span><span class="p">:</span>                              <span class="c1"># 若启用残差</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">res_conv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>                  <span class="c1"># 若需通道对齐</span>
+                <span class="n">identity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">res_conv</span><span class="p">(</span><span class="n">identity</span><span class="p">)</span>        <span class="c1"># 残差通道对齐</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">identity</span>                               <span class="c1"># 残差相加</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>                        <span class="c1"># 最后一次激活</span>
+
+        <span class="k">return</span> <span class="n">x</span>                                           <span class="c1"># 返回 Fused BEV Features</span>
+</code></pre></div></td></tr></table></div>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder.__init__" class="doc doc-heading">
+            <code class="highlight language-python"><span class="fm">__init__</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">mid_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="n">use_residual</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+
+<a href="#BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder.__init__" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>in_channels</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>输入 BEV 特征通道数 C_in。              # 输入通道</p>
+              </div>
+            </li>
+            <li>
+              <b><code>mid_channels</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>中间层通道数 C_mid。                   # 中间通道</p>
+              </div>
+            </li>
+            <li>
+              <b><code>out_channels</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>输出 BEV 特征通道数 C_out。            # 输出通道</p>
+              </div>
+            </li>
+            <li>
+              <b><code>use_residual</code></b>
+                  (<code>bool</code>, default:
+                      <code>False</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>是否使用残差连接。                     # 是否启用残差</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>BEV_space_integration\network\BEVFusionEncoder.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">in_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">mid_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">out_channels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">use_residual</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        in_channels (int):</span>
+<span class="sd">            输入 BEV 特征通道数 C_in。              # 输入通道</span>
+<span class="sd">        mid_channels (int):</span>
+<span class="sd">            中间层通道数 C_mid。                   # 中间通道</span>
+<span class="sd">        out_channels (int):</span>
+<span class="sd">            输出 BEV 特征通道数 C_out。            # 输出通道</span>
+<span class="sd">        use_residual (bool):</span>
+<span class="sd">            是否使用残差连接。                     # 是否启用残差</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>  <span class="c1"># 调用父类构造</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">use_residual</span> <span class="o">=</span> <span class="n">use_residual</span>                                 <span class="c1"># 记录是否使用残差</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">mid_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># 第一层 3×3 Conv</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">bn1</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">mid_channels</span><span class="p">)</span>                          <span class="c1"># BN</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">mid_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># 第二层 3×3 Conv</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">bn2</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">BatchNorm2d</span><span class="p">(</span><span class="n">out_channels</span><span class="p">)</span>                          <span class="c1"># BN</span>
+
+    <span class="k">if</span> <span class="n">use_residual</span> <span class="ow">and</span> <span class="n">in_channels</span> <span class="o">!=</span> <span class="n">out_channels</span><span class="p">:</span>                 <span class="c1"># 若通道不一致且启用残差</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">res_conv</span> <span class="o">=</span> <span class="n">nn</span><span class="o">.</span><span class="n">Conv2d</span><span class="p">(</span><span class="n">in_channels</span><span class="p">,</span> <span class="n">out_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>     <span class="c1"># 通道对齐卷积</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">res_conv</span> <span class="o">=</span> <span class="kc">None</span>                                         <span class="c1"># 不使用残差对齐</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder.forward" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">forward</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></code>
+
+<a href="#BEV_space_integration.network.BEVFusionEncoder.BEVFusionEncoder.forward" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>x</code></b>
+                  (<code><span title="torch.Tensor">Tensor</span></code>)
+              –
+              <div class="doc-md-description">
+                <p>输入 BEV 特征图，形状 (B, C_in, H, W)。   # 输入特征</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code><span title="torch.Tensor">Tensor</span></code>
+              –
+              <div class="doc-md-description">
+                <p>torch.Tensor:
+融合编码后的 BEV 特征图 (B, C_out, H, W)。 # 输出特征</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>BEV_space_integration\network\BEVFusionEncoder.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">torch</span><span class="o">.</span><span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        x (torch.Tensor):</span>
+<span class="sd">            输入 BEV 特征图，形状 (B, C_in, H, W)。   # 输入特征</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        torch.Tensor:</span>
+<span class="sd">            融合编码后的 BEV 特征图 (B, C_out, H, W)。 # 输出特征</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">x</span><span class="o">.</span><span class="n">dim</span><span class="p">()</span> <span class="o">==</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;x 必须是 (B, C, H, W) 张量&quot;</span>    <span class="c1"># 基本形状检查</span>
+
+    <span class="n">identity</span> <span class="o">=</span> <span class="n">x</span>                                       <span class="c1"># 保存残差分支</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                  <span class="c1"># 第一层卷积</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                    <span class="c1"># BN</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>                        <span class="c1"># ReLU</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                  <span class="c1"># 第二层卷积</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bn2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>                                    <span class="c1"># BN</span>
+
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_residual</span><span class="p">:</span>                              <span class="c1"># 若启用残差</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">res_conv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>                  <span class="c1"># 若需通道对齐</span>
+            <span class="n">identity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">res_conv</span><span class="p">(</span><span class="n">identity</span><span class="p">)</span>        <span class="c1"># 残差通道对齐</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">identity</span>                               <span class="c1"># 残差相加</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">relu</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>                        <span class="c1"># 最后一次激活</span>
+
+    <span class="k">return</span> <span class="n">x</span>                                           <span class="c1"># 返回 Fused BEV Features</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../lidar_side/" class="btn btn-neutral float-left" title="LiDAR 分支模块"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../lidar_side/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
